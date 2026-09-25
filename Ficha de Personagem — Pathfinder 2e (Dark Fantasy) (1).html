@@ -1,0 +1,4926 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha de Personagem — Pathfinder 2e (Dark Fantasy)</title>
+  
+  <!-- Fontes do Google: Cinzel, Crimson Text e EB Garamond -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=EB+Garamond:wght@400;600;700&display=swap">
+
+  <!-- Shell do Sistema -->
+  <style>
+/* Skip artifact shell — fixed styles served beside every artifact.
+   Complements basecoat; artifacts override --accent for their own identity. */
+:root {
+  color-scheme: light dark;
+  --accent: #2563eb;
+  --accent-contrast: #ffffff;
+  --accent-text: color-mix(in srgb, var(--accent) 72%, #000);
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --text: #14171f;
+  --text-muted: #5b6472;
+  --border: rgba(20, 23, 31, 0.10);
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(20, 23, 31, 0.08);
+  --space: 16px;
+}
+/* Theme resolution. Without data-theme the viewer's system preference decides,
+   as it always did. With it, the artifact's own choice wins in BOTH directions:
+   a page that hardcodes one palette must not be handed the opposite set of
+   tokens by the machine it happens to be opened on. The dark values appear
+   twice because a media query cannot be folded into a selector list.
+   The attribute sits inside :where() so these blocks keep the specificity of a
+   bare :root — the page's own <style> is linked after this file and must go on
+   overriding any token it wants, exactly as it could before. */
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+    --bg: #101318;
+    --surface: #181c23;
+    --text: #eef1f6;
+    --text-muted: #9aa4b2;
+    --border: rgba(238, 241, 246, 0.12);
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+}
+:root:where([data-theme="dark"]) {
+  color-scheme: dark;
+  --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
+  --bg: #101318;
+  --surface: #181c23;
+  --text: #eef1f6;
+  --text-muted: #9aa4b2;
+  --border: rgba(238, 241, 246, 0.12);
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+:root:where([data-theme="light"]) { color-scheme: light; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+
+.shell-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+.shell-section { padding: calc(var(--space) * 2) 0; }
+.shell-grid { display: grid; gap: var(--space); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.shell-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--space); }
+.shell-footer { padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; }
+
+.shell-hero { padding: calc(var(--space) * 3) 0 calc(var(--space) * 2); }
+.shell-hero h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance; }
+.shell-hero p { color: var(--text-muted); max-width: 60ch; margin: 0; }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--space);
+}
+
+.kpi { display: flex; flex-direction: column; gap: 4px; }
+.kpi .kpi-value { font-size: 28px; font-weight: 650; line-height: 1.1; }
+.kpi .kpi-label { font-size: 13px; color: var(--text-muted); }
+.kpi .kpi-delta { font-size: 12.5px; font-weight: 600; }
+.kpi .kpi-delta.up { color: #0a8f3c; }
+.kpi .kpi-delta.down { color: #cf3131; }
+
+table.shell-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+table.shell-table th {
+  text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
+  color: var(--text-muted); font-weight: 600;
+}
+table.shell-table th, table.shell-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); }
+table.shell-table td.num, table.shell-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.chart-box { width: 100%; min-height: 220px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+
+.muted { color: var(--text-muted); }
+.accent { color: var(--accent-text); }
+.shell-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .shell-fade { animation: shell-fade 400ms ease both; }
+  @keyframes shell-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+}
+
+</style>
+  
+
+  <style>
+    :root {
+      --accent: #8b181b;
+      --accent-text: #e66a6d;
+      --accent-contrast: #ffffff;
+      --gold: #c5a059;
+      --gold-bright: #eed99e;
+      --gold-pale: #f4e8c1;
+      --gold-dim: #6d5427;
+      --bg-dark: #050507;
+      --bg-surface: #0e0e13;
+      --bg-surface-elevated: #14141a;
+      --bg-input: rgba(10, 10, 14, 0.85);
+      --border-ornate: #2f281e;
+      --border-gold: #735d33;
+      --border-gold-bright: #a88a4e;
+      --text-main: #dedcd4;
+      --text-subtle: #969387;
+      --text-danger: #cf4343;
+      --font-heading: 'Cinzel', serif;
+      --font-body: 'Crimson Text', serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* MELHORIA 5: FUNDO MAIS PROFUNDO COM VINHETA ACENTUADA E PADRÃO GEOMÉTRICO CSS */
+    body {
+      background-color: #030304;
+      background-image: 
+        /* Vinheta periférica profunda escurecendo as extremidades */
+        radial-gradient(ellipse at 50% 40%, rgba(14, 14, 19, 0.82) 0%, rgba(7, 7, 10, 0.94) 55%, #020203 100%),
+        /* Sombra rubra do sangue ancestral no topo */
+        radial-gradient(ellipse at 50% -10%, rgba(139, 24, 27, 0.22) 0%, transparent 65%),
+        /* Brilho dourado abafado de runas antigas */
+        radial-gradient(circle at 85% 90%, rgba(197, 160, 89, 0.06) 0%, transparent 45%),
+        /* Grade geométrica fina de losangos e diagonais sutis */
+        repeating-linear-gradient(60deg, rgba(197, 160, 89, 0.015) 0px, rgba(197, 160, 89, 0.015) 1px, transparent 1px, transparent 24px),
+        repeating-linear-gradient(-60deg, rgba(197, 160, 89, 0.015) 0px, rgba(197, 160, 89, 0.015) 1px, transparent 1px, transparent 24px),
+        linear-gradient(180deg, #030305 0%, #09090e 50%, #020204 100%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 17px;
+      line-height: 1.5;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3, h4, .font-ornate {
+      font-family: var(--font-heading);
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--gold-bright);
+    }
+
+    /* MELHORIA 1: MOLDURA DE GRIMÓRIO AO REDOR DA PÁGINA INTEIRA */
+    .page-grimoire-wrapper {
+      max-width: 1340px;
+      margin: 16px auto;
+      padding: 10px;
+      position: relative;
+    }
+
+    /* Borda externa escura e espessa com filete dourado envelhecido */
+    .grimoire-frame-outer {
+      border: 2px solid #231e17;
+      outline: 1px solid rgba(197, 160, 89, 0.35);
+      outline-offset: -5px;
+      padding: 10px;
+      position: relative;
+      background: rgba(9, 9, 13, 0.88);
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.98), inset 0 0 40px rgba(0, 0, 0, 0.9);
+    }
+
+    /* Borda interna fina dourada-acinzentada */
+    .grimoire-frame-inner {
+      border: 1px solid var(--border-gold);
+      position: relative;
+      min-height: calc(100vh - 58px);
+      padding-bottom: 24px;
+      background: rgba(12, 12, 16, 0.45);
+    }
+
+    /* Cantos decorados com ornamentos geométricos em CSS */
+    .tome-page-corner {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-pale);
+      font-size: 0.85rem;
+      z-index: 55;
+      text-shadow: 0 0 8px rgba(238, 217, 158, 0.6);
+      user-select: none;
+      pointer-events: none;
+      background: #09090d;
+      border: 1px solid var(--border-gold);
+    }
+
+    .tome-page-corner::before,
+    .tome-page-corner::after {
+      content: '';
+      position: absolute;
+      background: var(--gold-dim);
+    }
+
+    .tome-page-corner.top-left {
+      top: -13px;
+      left: -13px;
+      box-shadow: -2px -2px 0 1px #040406;
+    }
+    .tome-page-corner.top-right {
+      top: -13px;
+      right: -13px;
+      box-shadow: 2px -2px 0 1px #040406;
+    }
+    .tome-page-corner.bottom-left {
+      bottom: -13px;
+      left: -13px;
+      box-shadow: -2px 2px 0 1px #040406;
+    }
+    .tome-page-corner.bottom-right {
+      bottom: -13px;
+      right: -13px;
+      box-shadow: 2px 2px 0 1px #040406;
+    }
+
+    /* Cantoneiras adicionais em filete geométrico interno */
+    .grimoire-frame-inner::before,
+    .grimoire-frame-inner::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      pointer-events: none;
+      border: 1px solid var(--gold-bright);
+      opacity: 0.55;
+    }
+    .grimoire-frame-inner::before {
+      top: 4px;
+      left: 4px;
+      border-right: none;
+      border-bottom: none;
+    }
+    .grimoire-frame-inner::after {
+      bottom: 4px;
+      right: 4px;
+      border-left: none;
+      border-top: none;
+    }
+
+    /* BARRA SUPERIOR E GESTOR DE PERSONAGENS */
+    .grimoire-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(9, 9, 12, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-gold);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+
+    .header-top {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(130, 106, 58, 0.25);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.15rem;
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+    }
+
+    .brand-symbol {
+      color: var(--accent-text);
+      font-size: 1.3rem;
+    }
+
+    .character-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tome-select {
+      background: var(--bg-input);
+      color: var(--gold-bright);
+      border: 1px solid var(--border-gold);
+      padding: 6px 12px;
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      outline: none;
+      cursor: pointer;
+      min-width: 170px;
+    }
+
+    .tome-select:focus {
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 8px rgba(197, 160, 89, 0.4);
+    }
+
+    .btn-grimoire {
+      background: #141318;
+      color: var(--gold);
+      border: 1px solid var(--border-gold);
+      padding: 6px 12px;
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .btn-grimoire:hover {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: #d44;
+      box-shadow: 0 0 10px rgba(139, 24, 27, 0.6);
+    }
+
+    .btn-grimoire.danger:hover {
+      background: #500f11;
+      border-color: #8b181b;
+    }
+
+    .save-status-pill {
+      font-family: var(--font-heading);
+      font-size: 0.72rem;
+      color: var(--text-subtle);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 8px;
+      border: 1px solid rgba(130, 106, 58, 0.2);
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .save-status-pill.saved {
+      color: var(--gold);
+    }
+
+    /* NAVEGAÇÃO DE ABAS */
+    .tabs-nav {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold-dim) transparent;
+      padding: 0 10px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-subtle);
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      letter-spacing: 0.07em;
+      padding: 12px 16px;
+      cursor: pointer;
+      white-space: nowrap;
+      position: relative;
+      transition: color 0.2s ease;
+      text-transform: uppercase;
+    }
+
+    .tab-btn:hover {
+      color: var(--gold);
+    }
+
+    .tab-btn.active {
+      color: var(--gold-bright);
+      font-weight: 700;
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 12px;
+      right: 12px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-bright), transparent);
+      box-shadow: 0 -2px 6px rgba(231, 202, 125, 0.5);
+    }
+
+    /* CONTAINER PRINCIPAL */
+    .tome-container {
+      max-width: 1200px;
+      margin: 24px auto 40px auto;
+      padding: 0 16px;
+    }
+
+    /* CARDS E PAINÉIS ORNAMENTADOS */
+    .grimoire-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-ornate);
+      box-shadow: 0 10px 35px rgba(0,0,0,0.75), inset 0 0 45px rgba(0,0,0,0.55);
+      position: relative;
+      margin-bottom: 24px;
+      padding: 26px;
+    }
+
+    .grimoire-card::before, .grimoire-card::after {
+      content: '❖';
+      position: absolute;
+      font-size: 0.75rem;
+      color: var(--gold-dim);
+    }
+    .grimoire-card::before { top: 6px; left: 8px; }
+    .grimoire-card::after { top: 6px; right: 8px; }
+
+    .card-corner-bl, .card-corner-br {
+      position: absolute;
+      font-size: 0.75rem;
+      color: var(--gold-dim);
+    }
+    .card-corner-bl { bottom: 6px; left: 8px; }
+    .card-corner-br { bottom: 6px; right: 8px; }
+
+    /* MELHORIA 2: CABEÇALHOS DE CAPÍTULO ESTILO ELDEN RING */
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 1.22rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      color: var(--gold-bright);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 14px;
+      margin-bottom: 22px;
+      padding: 10px 14px;
+      position: relative;
+      background: linear-gradient(90deg, rgba(28, 24, 18, 0.85) 0%, rgba(197, 160, 89, 0.07) 50%, rgba(14, 14, 19, 0.2) 100%);
+      border-top: 1px solid rgba(197, 160, 89, 0.25);
+      border-bottom: 1px solid var(--border-gold);
+      box-shadow: inset 0 1px 0 rgba(238, 217, 158, 0.15), 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .section-title::before {
+      content: '❖';
+      font-size: 0.82rem;
+      color: var(--gold-bright);
+      text-shadow: 0 0 10px rgba(238, 217, 158, 0.75);
+      flex-shrink: 0;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-gold-bright) 0%, rgba(115, 93, 51, 0.4) 40%, transparent 100%);
+      margin-left: 6px;
+    }
+
+    .sub-title {
+      font-family: var(--font-heading);
+      font-size: 0.92rem;
+      color: var(--gold-pale);
+      margin-top: 20px;
+      margin-bottom: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sub-title::before {
+      content: '✦';
+      font-size: 0.72rem;
+      color: var(--gold);
+      text-shadow: 0 0 6px rgba(197, 160, 89, 0.4);
+    }
+
+    .sub-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border-gold) 0%, var(--border-ornate) 50%, transparent 100%);
+    }
+
+    /* FORMULÁRIOS E INPUTS */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      text-transform: uppercase;
+    }
+
+    /* MELHORIA 4: ESTADOS DE INTERAÇÃO (BRILHO DOURADO SUAVE & TRANSIÇÕES 150-250MS) */
+    .form-input, .form-textarea, .form-select, .tome-table select, .tome-table input, .attribute-score-wrap input, .stat-breakdown input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-ornate);
+      color: var(--text-main);
+      padding: 8px 10px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      border-radius: 1px;
+      transition: border-color 0.2s ease, 
+                  box-shadow 0.2s ease, 
+                  background-color 0.2s ease,
+                  color 0.2s ease;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus, .tome-table select:focus, .tome-table input:focus, .attribute-score-wrap input:focus, .stat-breakdown input:focus {
+      outline: none;
+      border-color: var(--gold-bright);
+      background: rgba(18, 17, 24, 0.96);
+      box-shadow: 0 0 8px rgba(197, 160, 89, 0.38), inset 0 0 4px rgba(197, 160, 89, 0.1);
+    }
+
+    /* MELHORIA 3: CAMPOS CALCULADOS EM RELEVO / ENTALHE DE PEDRA OU METAL */
+    .form-input.calc-result,
+    .calc-embossed,
+    .calc-readonly-box {
+      background: #050507 !important;
+      border: 1px solid rgba(130, 106, 58, 0.5) !important;
+      color: var(--gold-pale) !important;
+      font-weight: 700;
+      font-family: var(--font-heading);
+      text-align: center;
+      letter-spacing: 0.06em;
+      box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.95), inset 0 0 10px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(197, 160, 89, 0.15) !important;
+      text-shadow: 0 0 6px rgba(238, 217, 158, 0.45);
+      cursor: default;
+      user-select: text;
+    }
+
+    /* Campos apenas de leitura recebem o visual entalhado discreto */
+    input[readonly].calc-readonly-box {
+      background: #060609 !important;
+      border: 1px solid rgba(115, 93, 51, 0.4) !important;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.9) !important;
+      color: var(--gold-bright) !important;
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.4;
+    }
+
+    /* SEÇÕES DE ABAS (PÁGINAS) */
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(3px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* PÁGINA: ATRIBUTOS E PERÍCIAS */
+    .attributes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .attribute-box {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-ornate);
+      padding: 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .attribute-box:hover {
+      border-color: var(--gold);
+    }
+
+    .attribute-name {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      color: var(--gold-bright);
+      margin-bottom: 6px;
+      letter-spacing: 0.05em;
+    }
+
+    .attribute-score-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .attribute-score-wrap input {
+      width: 60px;
+      text-align: center;
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-gold);
+      color: var(--text-main);
+      padding: 4px;
+    }
+
+    /* MELHORIA 3: MODIFICADORES COM RELEVO ENTALHADO DE METAL / PEDRA */
+    .attribute-mod {
+      font-family: var(--font-heading);
+      font-size: 1.85rem;
+      font-weight: 900;
+      color: var(--gold-pale);
+      background: linear-gradient(180deg, #040406 0%, #08080c 100%);
+      border: 1px solid rgba(130, 106, 58, 0.55);
+      box-shadow: inset 0 4px 9px rgba(0, 0, 0, 0.98), inset 0 0 14px rgba(0, 0, 0, 0.85), 0 1px 0 rgba(197, 160, 89, 0.18);
+      text-shadow: 0 0 10px rgba(238, 217, 158, 0.5);
+      padding: 6px 0;
+      margin: 8px 0;
+      letter-spacing: 0.05em;
+      position: relative;
+    }
+
+    .attribute-tag {
+      font-size: 0.72rem;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+    }
+
+    /* PÁGINA: DEFESA E SAÚDE */
+    .defenses-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .big-stat-panel {
+      background: #0b0b0f;
+      border: 1px solid var(--border-gold);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+    }
+
+    .big-stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .big-stat-value {
+      font-family: var(--font-heading);
+      font-size: 2.2rem;
+      color: var(--gold-pale);
+      font-weight: 900;
+      background: #060609;
+      border: 1px solid rgba(130, 106, 58, 0.4);
+      box-shadow: inset 0 3px 8px rgba(0,0,0,0.95), 0 1px 0 rgba(197, 160, 89, 0.15);
+      padding: 2px 14px;
+      display: inline-block;
+      text-shadow: 0 0 12px rgba(197, 160, 89, 0.4);
+    }
+
+    .stat-breakdown {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(65px, 1fr));
+      gap: 8px;
+      align-items: center;
+      font-size: 0.8rem;
+    }
+
+    .stat-breakdown input {
+      width: 100%;
+      text-align: center;
+      padding: 4px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-ornate);
+      color: var(--text-main);
+    }
+
+    .conditions-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .condition-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 6px 8px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(130, 106, 58, 0.2);
+      transition: background 0.15s;
+    }
+
+    .condition-label:hover {
+      background: rgba(139, 24, 27, 0.15);
+      border-color: var(--gold-dim);
+    }
+
+    .condition-label input[type="checkbox"] {
+      accent-color: var(--accent);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+
+    /* PÁGINA: PERÍCIAS */
+    .skills-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .tome-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      margin-top: 10px;
+    }
+
+    .tome-table th, .tome-table td {
+      padding: 8px 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-ornate);
+    }
+
+    .tome-table th {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      background: rgba(0,0,0,0.4);
+    }
+
+    .tome-table tr:hover td {
+      background: rgba(197, 160, 89, 0.03);
+    }
+
+    .tome-table td.center {
+      text-align: center;
+    }
+
+    .tome-table select, .tome-table input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-ornate);
+      color: var(--text-main);
+      padding: 4px 6px;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+    }
+
+    .tome-table input[type="number"] {
+      width: 55px;
+      text-align: center;
+    }
+
+    .prof-select {
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+      color: var(--gold-bright);
+    }
+
+    /* MODIFICAÇÃO 3: TOTAIS DE PERÍCIA E SALVAGUARDA COM RELEVO */
+    .skill-total {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      color: var(--gold-pale);
+      font-size: 1.05rem;
+      min-width: 48px;
+      display: inline-block;
+      text-align: center;
+      background: #060609;
+      border: 1px solid rgba(130, 106, 58, 0.45);
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.92), 0 1px 0 rgba(197, 160, 89, 0.12);
+      padding: 3px 6px;
+      text-shadow: 0 0 6px rgba(238, 217, 158, 0.4);
+    }
+
+    /* MELHORIA 4: LINHAS DINÂMICAS COM REALCE SUTIL NO HOVER & TRANSIÇÃO (150-250MS) */
+    .dynamic-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .feats-category-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .dynamic-row, .spell-row, .item-row {
+      transition: background-color 0.2s ease, 
+                  border-color 0.2s ease, 
+                  box-shadow 0.2s ease,
+                  transform 0.15s ease;
+      position: relative;
+    }
+
+    .dynamic-row:hover, .spell-row:hover, .item-row:hover {
+      background: #181721;
+      border-color: rgba(197, 160, 89, 0.4);
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(197, 160, 89, 0.03);
+    }
+
+    .dynamic-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1.5fr 2fr 40px;
+      gap: 10px;
+      align-items: center;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-ornate);
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .spell-row {
+      display: grid;
+      grid-template-columns: 2.5fr 1fr 1fr 2.5fr 40px;
+      gap: 10px;
+      align-items: center;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-ornate);
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+
+    .item-row {
+      display: grid;
+      grid-template-columns: 3fr 1fr 1fr 3fr 40px;
+      gap: 10px;
+      align-items: center;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-ornate);
+      padding: 8px 10px;
+      margin-bottom: 8px;
+    }
+
+    .btn-remove-row, .btn-remove-archetype, .btn-remove-feat {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-subtle);
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      cursor: pointer;
+      height: 30px;
+      width: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .dynamic-row:hover .btn-remove-row,
+    .spell-row:hover .btn-remove-row,
+    .item-row:hover .btn-remove-row,
+    .archetype-card:hover .btn-remove-archetype,
+    .archetype-feat-card:hover .btn-remove-feat {
+      opacity: 0.65;
+      visibility: visible;
+    }
+
+    .btn-remove-row:hover,
+    .btn-remove-archetype:hover,
+    .btn-remove-feat:hover {
+      opacity: 1 !important;
+      color: #ff5555;
+      background: rgba(139, 24, 27, 0.25);
+      border-color: var(--accent);
+    }
+
+    /* ESTILOS DA ABA DE ARQUÉTIPOS */
+    .archetype-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-ornate);
+      box-shadow: 0 10px 35px rgba(0,0,0,0.75), inset 0 0 45px rgba(0,0,0,0.55);
+      position: relative;
+      margin-bottom: 28px;
+      padding: 26px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .archetype-card:hover {
+      border-color: var(--border-gold);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.85), inset 0 0 45px rgba(197, 160, 89, 0.04);
+    }
+
+    .archetype-card::before, .archetype-card::after {
+      content: '❖';
+      position: absolute;
+      font-size: 0.75rem;
+      color: var(--gold-dim);
+    }
+    .archetype-card::before { top: 6px; left: 8px; }
+    .archetype-card::after { top: 6px; right: 8px; }
+
+    .btn-remove-archetype {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 5;
+    }
+
+    .archetype-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .archetype-col-identity {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .archetype-frame-wrap {
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      max-height: 380px;
+      background: #060609;
+      border: 2px solid var(--border-gold);
+      outline: 1px solid rgba(197, 160, 89, 0.35);
+      outline-offset: -5px;
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: inset 0 0 25px rgba(0,0,0,0.9), 0 4px 15px rgba(0,0,0,0.6);
+      transition: border-color 0.2s ease, outline-color 0.2s ease;
+    }
+
+    .archetype-frame-wrap:hover {
+      border-color: var(--gold-bright);
+      outline-color: var(--gold);
+    }
+
+    .archetype-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .archetype-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px;
+      text-align: center;
+      color: var(--gold-dim);
+      user-select: none;
+    }
+
+    .archetype-placeholder-symbol {
+      font-size: 2.2rem;
+      color: var(--gold);
+      text-shadow: 0 0 10px rgba(197, 160, 89, 0.4);
+    }
+
+    .archetype-placeholder-hint {
+      font-family: var(--font-heading);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      line-height: 1.3;
+    }
+
+    .archetype-title-input {
+      font-family: var(--font-heading) !important;
+      font-size: 1.15rem !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.14em !important;
+      color: var(--gold-pale) !important;
+      text-transform: uppercase !important;
+      text-shadow: 0 0 8px rgba(238, 217, 158, 0.35);
+      background: rgba(10, 10, 14, 0.9) !important;
+      border: 1px solid var(--border-gold) !important;
+      padding: 8px 10px;
+    }
+
+    .archetype-title-input:focus {
+      border-color: var(--gold-bright) !important;
+      box-shadow: 0 0 10px rgba(197, 160, 89, 0.45) !important;
+    }
+
+    .archetype-col-feats {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .feats-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(130, 106, 58, 0.3);
+      padding-bottom: 6px;
+      margin-bottom: 4px;
+    }
+
+    .feats-list-header h3 {
+      font-size: 0.88rem;
+      color: var(--gold);
+      letter-spacing: 0.12em;
+    }
+
+    .archetype-feat-card {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border-ornate);
+      padding: 12px 14px;
+      position: relative;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .archetype-feat-card:hover {
+      background: #181721;
+      border-color: rgba(197, 160, 89, 0.45);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.65);
+    }
+
+    .feat-card-top {
+      display: grid;
+      grid-template-columns: 1fr 90px 30px;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .feat-title-input {
+      font-family: var(--font-heading) !important;
+      font-size: 0.92rem !important;
+      color: var(--gold-bright) !important;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    .feat-level-wrap {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .feat-level-label {
+      font-family: var(--font-heading);
+      font-size: 0.68rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .feat-level-input {
+      width: 48px;
+      text-align: center;
+      font-family: var(--font-heading);
+      font-weight: 700;
+    }
+
+    .feat-tags-row {
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .feat-tags-display {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      min-height: 26px;
+      cursor: pointer;
+      padding: 3px 6px;
+      border: 1px solid transparent;
+      border-radius: 1px;
+      transition: border-color 0.15s ease, background-color 0.15s ease;
+      user-select: none;
+    }
+
+    .feat-tags-display:hover {
+      border-color: rgba(197, 160, 89, 0.35);
+      background: rgba(197, 160, 89, 0.05);
+    }
+
+    .archetype-tag-badge {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.82rem;
+      color: var(--gold-pale);
+      background: rgba(18, 17, 24, 0.88);
+      border: 1px solid rgba(197, 160, 89, 0.45);
+      padding: 2px 8px;
+      line-height: 1.25;
+      letter-spacing: 0.04em;
+      clip-path: polygon(4px 0%, calc(100% - 4px) 0%, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0% calc(100% - 4px), 0% 4px);
+      text-shadow: 0 0 4px rgba(0,0,0,0.9);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+
+    .feat-tags-edit-btn {
+      color: var(--gold-dim);
+      font-size: 0.8rem;
+      margin-left: 2px;
+      transition: color 0.15s ease;
+    }
+
+    .feat-tags-display:hover .feat-tags-edit-btn {
+      color: var(--gold-bright);
+    }
+
+    .feat-tags-empty-hint {
+      font-family: 'EB Garamond', serif;
+      font-size: 0.84rem;
+      color: var(--text-subtle);
+      font-style: italic;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .feat-tags-edit-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .feat-tags-edit-input {
+      flex: 1;
+      font-size: 0.85rem !important;
+      padding: 4px 8px !important;
+    }
+
+    .btn-tags-ok {
+      padding: 4px 10px !important;
+      font-size: 0.72rem !important;
+      line-height: 1 !important;
+      height: 31px;
+    }
+
+    /* MODIFICAÇÃO 1: DESCRIÇÃO DO TALENTO SUBSTANCIALMENTE MAIOR */
+    .feat-desc-input {
+      width: 100%;
+      min-height: 120px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      resize: vertical;
+    }
+
+    @media (max-width: 900px) {
+      .archetype-grid {
+        grid-template-columns: 1fr;
+      }
+      .archetype-frame-wrap {
+        max-width: 320px;
+        margin: 0 auto;
+      }
+    }
+
+    .list-actions-footer {
+      display: flex;
+      justify-content: flex-start;
+      margin-top: 12px;
+    }
+
+    /* MENU AÇÕES E RENOMEAR INLINE */
+    .actions-menu-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+
+    .actions-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 6px;
+      background: rgba(14, 14, 19, 0.96);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--border-gold);
+      border-radius: 2px;
+      min-width: 195px;
+      z-index: 100;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.85);
+      padding: 6px 0;
+    }
+
+    .actions-dropdown.show {
+      display: block;
+    }
+
+    .actions-item {
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      padding: 10px 16px;
+      font-family: 'EB Garamond', 'Crimson Text', serif;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: block;
+    }
+
+    .actions-item:hover {
+      background: rgba(197, 160, 89, 0.12);
+      color: var(--gold-bright);
+    }
+
+    .actions-item.danger-item {
+      color: var(--accent-text);
+    }
+
+    .actions-item.danger-item:hover {
+      background: rgba(139, 24, 27, 0.3);
+      color: #ff8888;
+    }
+
+    .char-name-wrapper {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .char-name-display {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      color: var(--gold-bright);
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 8px;
+      border: 1px dashed transparent;
+      transition: border-color 0.2s, background 0.2s;
+      user-select: none;
+    }
+
+    .char-name-display:hover {
+      border-color: var(--border-gold);
+      background: rgba(197, 160, 89, 0.08);
+    }
+
+    .char-rename-input {
+      background: var(--bg-input);
+      color: var(--gold-bright);
+      border: 1px solid var(--gold);
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      padding: 3px 6px;
+      outline: none;
+      width: 150px;
+    }
+
+    .currency-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+      padding: 14px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border-ornate);
+    }
+
+    .coin-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .coin-label {
+      font-family: var(--font-heading);
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: var(--gold);
+    }
+
+    /* SEÇÃO DE MAGIA */
+    .magic-stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: #09090d;
+      border: 1px solid var(--border-gold);
+    }
+
+    .spell-slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .slot-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border-ornate);
+      padding: 8px;
+      text-align: center;
+    }
+
+    .slot-card label {
+      font-family: var(--font-heading);
+      font-size: 0.7rem;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .slot-inputs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .slot-inputs input {
+      width: 42px;
+      text-align: center;
+      padding: 2px;
+    }
+
+    /* MODAL DE IMPORTAÇÃO/EXPORTAÇÃO */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-box {
+      background: var(--bg-surface);
+      border: 2px solid var(--border-gold);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+      max-width: 520px;
+      width: 100%;
+      padding: 24px;
+      position: relative;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      color: var(--gold-bright);
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--border-ornate);
+      padding-bottom: 6px;
+    }
+
+    .modal-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    /* ROLAGEM E UTILITÁRIOS */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #08080a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-gold);
+      border-radius: 0;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--gold);
+    }
+
+    .print-only-header {
+      display: none;
+    }
+
+    /* MELHORIA 6: IMPRESSÃO REFINADA (PDF EM DUAS COLUNAS PARA A4) */
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 10mm 8mm;
+      }
+
+      html, body {
+        background: #ffffff !important;
+        color: #1a1a1a !important;
+        font-size: 9.5pt !important;
+        line-height: 1.35 !important;
+        min-height: auto !important;
+      }
+
+      /* Remover totalmente a moldura de grimório na impressão */
+      .page-grimoire-wrapper, .grimoire-frame-outer, .grimoire-frame-inner {
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        outline: none !important;
+        background: transparent !important;
+        min-height: auto !important;
+      }
+
+      .tome-page-corner,
+      .grimoire-frame-inner::before,
+      .grimoire-frame-inner::after,
+      .grimoire-card::before, 
+      .grimoire-card::after,
+      .card-corner-bl, 
+      .card-corner-br,
+      .archetype-card::before,
+      .archetype-card::after,
+      .grimoire-header, 
+      .character-controls, 
+      .tabs-nav, 
+      .btn-grimoire, 
+      .btn-remove-row, 
+      .btn-remove-archetype,
+      .btn-remove-feat,
+      .archetype-placeholder-hint,
+      .dynamic-list-header button, 
+      .save-status-pill,
+      .modal-backdrop,
+      .list-actions-footer {
+        display: none !important;
+      }
+
+      .archetype-card {
+        background: #ffffff !important;
+        border: 1.5px solid #333333 !important;
+        box-shadow: none !important;
+        padding: 10px 12px !important;
+        margin-bottom: 14px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .archetype-grid {
+        display: grid !important;
+        grid-template-columns: 140px 1fr !important;
+        gap: 12px !important;
+      }
+
+      .archetype-frame-wrap {
+        border: 1px solid #444444 !important;
+        background: #ffffff !important;
+        outline: none !important;
+        max-height: 180px !important;
+        aspect-ratio: auto !important;
+        height: 170px !important;
+      }
+
+      .archetype-feat-card {
+        background: #fdfdfd !important;
+        border: 1px solid #777777 !important;
+        color: #111111 !important;
+        box-shadow: none !important;
+        padding: 6px !important;
+        margin-bottom: 6px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      .archetype-tag-badge {
+        background: #f0f0f0 !important;
+        border: 1px solid #555555 !important;
+        color: #222222 !important;
+        clip-path: none !important;
+      }
+
+      .feat-tags-edit-btn,
+      .feat-tags-empty-hint,
+      .feat-tags-edit-row {
+        display: none !important;
+      }
+
+      /* Cabeçalho de Impressão com Nome do Personagem em Destaque */
+      .print-only-header {
+        display: block !important;
+        border-bottom: 2px solid #222222 !important;
+        padding-bottom: 8px !important;
+        margin-bottom: 16px !important;
+        text-align: left !important;
+      }
+
+      .print-char-title {
+        font-family: var(--font-heading) !important;
+        font-size: 20pt !important;
+        font-weight: 700 !important;
+        color: #000000 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+        margin-bottom: 2px !important;
+      }
+
+      .print-char-sub {
+        font-family: var(--font-body) !important;
+        font-size: 10.5pt !important;
+        color: #444444 !important;
+        font-style: italic !important;
+      }
+
+      /* Layout em 2 colunas para A4 */
+      .tome-container {
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: block !important;
+        column-count: 2 !important;
+        column-gap: 16px !important;
+      }
+
+      .tab-content {
+        display: block !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        margin-bottom: 14px !important;
+      }
+
+      .grimoire-card {
+        background: #ffffff !important;
+        border: 1px solid #555555 !important;
+        box-shadow: none !important;
+        padding: 10px 12px !important;
+        margin-bottom: 14px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      h1, h2, h3, h4, .section-title, .sub-title {
+        color: #111111 !important;
+        text-shadow: none !important;
+        letter-spacing: 0.08em !important;
+      }
+
+      .section-title {
+        background: none !important;
+        padding: 4px 0 6px 0 !important;
+        font-size: 11pt !important;
+        border-top: none !important;
+        border-bottom: 1.5px solid #222222 !important;
+        box-shadow: none !important;
+        margin-bottom: 12px !important;
+      }
+
+      .section-title::before, .sub-title::before {
+        color: #444444 !important;
+        text-shadow: none !important;
+      }
+
+      .section-title::after {
+        background: #888888 !important;
+      }
+
+      .sub-title {
+        margin-top: 12px !important;
+        margin-bottom: 8px !important;
+        font-size: 9.5pt !important;
+      }
+
+      .sub-title::after {
+        background: #888888 !important;
+      }
+
+      .form-input, .form-textarea, .form-select, .attribute-score-wrap input, .tome-table select, .tome-table input, .stat-breakdown input {
+        background: #ffffff !important;
+        border: 1px solid #777777 !important;
+        color: #111111 !important;
+        box-shadow: none !important;
+        font-size: 8.5pt !important;
+        padding: 2px 4px !important;
+      }
+
+      .attribute-box, .big-stat-panel, .dynamic-row, .spell-row, .item-row {
+        background: #fdfdfd !important;
+        border: 1px solid #777777 !important;
+        color: #111111 !important;
+        box-shadow: none !important;
+        padding: 6px !important;
+        margin-bottom: 6px !important;
+      }
+
+      .attribute-mod, .big-stat-value, .skill-total, .form-input.calc-result, .calc-embossed, .calc-readonly-box {
+        background: #f2f2f2 !important;
+        color: #000000 !important;
+        border: 1px solid #444444 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+        font-weight: 700 !important;
+      }
+
+      .attribute-mod {
+        font-size: 1.3rem !important;
+        padding: 2px 0 !important;
+        margin: 4px 0 !important;
+      }
+
+      .big-stat-value {
+        font-size: 1.35rem !important;
+        padding: 0 6px !important;
+      }
+
+      .tome-table th {
+        background: #eaeaea !important;
+        color: #000000 !important;
+        border-bottom: 1.5px solid #444444 !important;
+        font-size: 7.5pt !important;
+        padding: 4px !important;
+      }
+
+      .tome-table td {
+        border-bottom: 1px solid #cccccc !important;
+        color: #111111 !important;
+        padding: 3px 4px !important;
+      }
+
+      .currency-grid {
+        background: #f7f7f7 !important;
+        border: 1px solid #888888 !important;
+        padding: 8px !important;
+      }
+
+      .magic-stats-bar {
+        background: #f8f8f8 !important;
+        border: 1px solid #888888 !important;
+        padding: 8px !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-grimoire-wrapper {
+        margin: 4px;
+        padding: 2px;
+      }
+      .grimoire-frame-outer {
+        padding: 3px;
+      }
+      .attributes-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .dynamic-row, .spell-row, .item-row {
+        grid-template-columns: 1fr;
+      }
+      .currency-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .brand-title span.full-title {
+        display: none;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .attributes-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ESTILOS DA ABA LEMBRANÇAS (MURAL MASONRY DARK FANTASY) */
+    .memories-masonry {
+      column-count: 3;
+      column-gap: 20px;
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 1024px) {
+      .memories-masonry {
+        column-count: 2;
+        column-gap: 16px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .memories-masonry {
+        column-count: 1;
+        column-gap: 0;
+      }
+    }
+
+    .memory-card-wrapper {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin-bottom: 20px;
+      perspective: 1200px;
+      position: relative;
+    }
+
+    .memory-card {
+      position: relative;
+      width: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+      border: 1px solid var(--border-ornate);
+      background: var(--bg-surface);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 35px rgba(0, 0, 0, 0.6);
+    }
+
+    .memory-card:hover {
+      border-color: rgba(197, 160, 89, 0.45);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.9), 0 0 15px rgba(197, 160, 89, 0.12);
+    }
+
+    .memory-card.flipped {
+      transform: rotateY(180deg);
+    }
+
+    .memory-card::before, .memory-card::after {
+      content: '❖';
+      position: absolute;
+      font-size: 0.72rem;
+      color: var(--gold-dim);
+      z-index: 6;
+      pointer-events: none;
+    }
+    .memory-card::before { top: 6px; left: 8px; }
+    .memory-card::after { top: 6px; right: 8px; }
+
+    .btn-remove-memory {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: rgba(10, 10, 14, 0.85);
+      border: 1px solid var(--border-gold);
+      color: var(--text-subtle);
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+      line-height: 1;
+      user-select: none;
+    }
+
+    .memory-card-wrapper:hover .btn-remove-memory {
+      opacity: 0.75;
+      visibility: visible;
+    }
+
+    .btn-remove-memory:hover {
+      opacity: 1 !important;
+      color: #ff5555;
+      background: rgba(139, 24, 27, 0.5);
+      border-color: var(--accent);
+    }
+
+    /* Frente da Lembrança */
+    .memory-face-front {
+      position: relative;
+      width: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      padding: 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .memory-image-frame {
+      width: 100%;
+      position: relative;
+      border: 1px solid var(--border-gold);
+      outline: 1px solid rgba(197, 160, 89, 0.3);
+      outline-offset: -4px;
+      background: #050508;
+      overflow: hidden;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.9);
+    }
+
+    .memory-image-frame img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: transform 0.3s ease, filter 0.3s ease;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .memory-card:hover .memory-image-frame img {
+      filter: contrast(1.05) brightness(1.03);
+    }
+
+    .memory-front-hint {
+      font-family: var(--font-heading);
+      font-size: 0.68rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+      padding-top: 4px;
+      user-select: none;
+      transition: color 0.2s ease;
+    }
+
+    .memory-card:hover .memory-front-hint {
+      color: var(--gold);
+    }
+
+    /* Verso da Lembrança */
+    .memory-face-back {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      transform: rotateY(180deg);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      background: 
+        radial-gradient(circle at 50% 50%, rgba(20, 18, 24, 0.98) 0%, rgba(10, 9, 13, 0.99) 100%),
+        repeating-linear-gradient(45deg, rgba(197, 160, 89, 0.02) 0px, rgba(197, 160, 89, 0.02) 2px, transparent 2px, transparent 8px);
+      border: 1px solid var(--border-gold);
+      outline: 1px solid rgba(197, 160, 89, 0.25);
+      outline-offset: -4px;
+      box-sizing: border-box;
+    }
+
+    .memory-back-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(130, 106, 58, 0.3);
+      padding-bottom: 4px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .memory-back-title {
+      font-family: var(--font-heading);
+      font-size: 0.76rem;
+      color: var(--gold-bright);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .memory-back-flip-btn {
+      background: transparent;
+      border: 1px solid var(--border-gold);
+      color: var(--gold);
+      font-family: var(--font-heading);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .memory-back-flip-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: #d44;
+    }
+
+    .memory-textarea {
+      flex: 1;
+      width: 100%;
+      min-height: 160px;
+      resize: vertical;
+      background: rgba(6, 6, 9, 0.92);
+      border: 1px solid var(--border-ornate);
+      color: var(--text-main);
+      padding: 10px;
+      font-family: var(--font-body);
+      font-size: 0.96rem;
+      line-height: 1.5;
+    }
+
+    .memory-textarea:focus {
+      outline: none;
+      border-color: var(--gold-bright);
+      box-shadow: 0 0 8px rgba(197, 160, 89, 0.35);
+    }
+
+    .memory-back-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-heading);
+      font-size: 0.68rem;
+      color: var(--text-subtle);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      padding-top: 2px;
+    }
+
+    .memory-back-footer:hover {
+      color: var(--gold);
+    }
+
+    /* Print styles para a aba Lembranças */
+    @media print {
+      .memories-masonry {
+        column-count: 2 !important;
+        column-gap: 14px !important;
+        display: block !important;
+      }
+
+      .memory-card-wrapper {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        margin-bottom: 12px !important;
+      }
+
+      .memory-card {
+        border: 1px solid #555555 !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+        transform: none !important;
+      }
+
+      .memory-face-front {
+        cursor: default !important;
+        padding: 6px !important;
+      }
+
+      .memory-image-frame {
+        border: 1px solid #777777 !important;
+        outline: none !important;
+        background: #ffffff !important;
+        box-shadow: none !important;
+      }
+
+      .memory-front-hint,
+      .btn-remove-memory,
+      .memory-back-flip-btn {
+        display: none !important;
+      }
+
+      .memory-face-back {
+        position: static !important;
+        transform: none !important;
+        backface-visibility: visible !important;
+        -webkit-backface-visibility: visible !important;
+        border: none !important;
+        outline: none !important;
+        background: transparent !important;
+        padding: 6px 4px 4px 4px !important;
+        height: auto !important;
+      }
+
+      .memory-textarea {
+        background: #ffffff !important;
+        border: 1px solid #888888 !important;
+        color: #111111 !important;
+        min-height: auto !important;
+        font-size: 8.5pt !important;
+        padding: 4px !important;
+      }
+
+      .memory-back-footer {
+        display: none !important;
+      }
+
+      .memory-card::before, .memory-card::after {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MOLDURA DE GRIMÓRIO ENVOLVENDO A PÁGINA (MODIFICAÇÃO 1) -->
+  <div class="page-grimoire-wrapper">
+    <div class="grimoire-frame-outer">
+      <div class="grimoire-frame-inner">
+        <!-- Ornamentos geométricos dos cantos da moldura -->
+        <span class="tome-page-corner top-left">❖</span>
+        <span class="tome-page-corner top-right">❖</span>
+        <span class="tome-page-corner bottom-left">❖</span>
+        <span class="tome-page-corner bottom-right">❖</span>
+
+  <!-- CABEÇALHO FIXO COM SELETOR DE PERSONAGENS, MENU AÇÕES E ABAS -->
+  <header class="grimoire-header">
+    <div class="header-top">
+      <div class="character-controls">
+        <div class="char-name-wrapper" title="Clique duplo para renomear">
+          <span id="charNameDisplay" class="char-name-display"></span>
+          <input type="text" id="charRenameInput" class="char-rename-input" style="display: none;">
+        </div>
+        <select id="characterSelector" class="tome-select" title="Selecione o personagem ativo"></select>
+        <div class="save-status-pill saved" id="saveIndicator">
+          <span>●</span> Salvo
+        </div>
+      </div>
+
+      <div class="actions-menu-wrapper">
+        <button type="button" class="btn-grimoire" id="btnActionsMenu" aria-expanded="false">
+          Ações &#9662;
+        </button>
+        <div class="actions-dropdown" id="actionsDropdown">
+          <button type="button" class="actions-item" id="actExportJson">Exportar JSON</button>
+          <button type="button" class="actions-item" id="actImportJson">Importar JSON</button>
+          <button type="button" class="actions-item" id="actDownloadPdf">Baixar PDF</button>
+          <button type="button" class="actions-item" id="actNewChar">Novo personagem</button>
+          <button type="button" class="actions-item danger-item" id="actClearChar">Zerar ficha</button>
+          <button type="button" class="actions-item danger-item" id="actDeleteChar">Excluir personagem</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABAS DE NAVEGAÇÃO SUPERIOR -->
+    <nav class="tabs-nav" id="tabsNav">
+      <button type="button" class="tab-btn active" data-tab="tab-identidade">Identidade</button>
+      <button type="button" class="tab-btn" data-tab="tab-atributos-pericias">Atributos e Perícias</button>
+      <button type="button" class="tab-btn" data-tab="tab-defesa">Defesa e Saúde</button>
+      <button type="button" class="tab-btn" data-tab="tab-talentos">Talentos</button>
+      <button type="button" class="tab-btn" data-tab="tab-ataques">Ataques</button>
+      <button type="button" class="tab-btn" data-tab="tab-magias">Magias</button>
+      <button type="button" class="tab-btn" data-tab="tab-arquetipos">Arquétipos</button>
+      <button type="button" class="tab-btn" data-tab="tab-equipamento">Equipamento</button>
+      <button type="button" class="tab-btn" data-tab="tab-notas">Notas</button>
+      <button type="button" class="tab-btn" data-tab="tab-lembrancas">Lembranças</button>
+    </nav>
+  </header>
+
+  <!-- CONTEÚDO PRINCIPAL (GRIMOIRE TOME) -->
+  <main class="tome-container">
+
+    <!-- CABEÇALHO ESPECÍFICO PARA IMPRESSÃO (MODIFICAÇÃO 6) -->
+    <div class="print-only-header" id="printOnlyHeader">
+      <div class="print-char-title" id="printCharName">Althea Vane</div>
+      <div class="print-char-sub" id="printCharSub">Guerreiro • Nível 1 • Humano Versátil</div>
+    </div>
+
+    <!-- ABA 1: IDENTIDADE (MODIFICAÇÃO 2: NUMERAÇÃO ROMANA E ESTILO DE CAPÍTULO) -->
+    <section class="tab-content active" id="tab-identidade">
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">I. Registro de Identidade</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="charName">Nome do Personagem</label>
+            <input type="text" id="charName" class="form-input" data-bind="identity.name" placeholder="Ex: Valeros">
+          </div>
+          <div class="form-group">
+            <label for="charAncestry">Ancestralidade e Herança</label>
+            <input type="text" id="charAncestry" class="form-input" data-bind="identity.ancestry" placeholder="Ex: Humano (Versátil)">
+          </div>
+          <div class="form-group">
+            <label for="charBackground">Biografia / Background</label>
+            <input type="text" id="charBackground" class="form-input" data-bind="identity.background" placeholder="Ex: Gladiador">
+          </div>
+          <div class="form-group">
+            <label for="charClass">Classe e Doutrina/Subclasse</label>
+            <input type="text" id="charClass" class="form-input" data-bind="identity.class" placeholder="Ex: Guerreiro">
+          </div>
+          <div class="form-group" style="max-width: 140px;">
+            <label for="charLevel">Nível</label>
+            <input type="number" id="charLevel" class="form-input" data-bind="identity.level" min="1" max="20" value="1">
+          </div>
+          <div class="form-group" style="max-width: 140px;">
+            <label for="charSize">Tamanho</label>
+            <select id="charSize" class="form-select" data-bind="identity.size">
+              <option value="Minúsculo">Minúsculo</option>
+              <option value="Pequeno">Pequeno</option>
+              <option value="Médio" selected>Médio</option>
+              <option value="Grande">Grande</option>
+              <option value="Enorme">Enorme</option>
+              <option value="Imenso">Imenso</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="charAlignment">Traços / Tendência</label>
+            <input type="text" id="charAlignment" class="form-input" data-bind="identity.alignment" placeholder="Ex: Caótico e Bom">
+          </div>
+          <div class="form-group">
+            <label for="charDeity">Divindade</label>
+            <input type="text" id="charDeity" class="form-input" data-bind="identity.deity" placeholder="Ex: Iomedae, Gorum, Pharasma">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 18px;">
+          <label for="charBackstory">História Breve e Juramento</label>
+          <textarea id="charBackstory" class="form-textarea" data-bind="identity.backstory" placeholder="A crônica de suas batalhas pretéritas, cicatrizes e motivações..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 2: ATRIBUTOS E PERÍCIAS -->
+    <section class="tab-content" id="tab-atributos-pericias">
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">II. Atributos Primordiais</h2>
+        <p style="color: var(--text-subtle); margin-bottom: 18px; font-size: 0.95rem;">
+          Modificadores são calculados pela fórmula canônica de Pathfinder 2e: <code>⌊(Valor - 10) / 2⌋</code>.
+        </p>
+
+        <div class="attributes-grid">
+          <!-- FORÇA -->
+          <div class="attribute-box">
+            <div class="attribute-name">Força (FOR)</div>
+            <div class="attribute-score-wrap">
+              <input type="number" id="attr_str" data-bind="attributes.str" value="16" min="1" max="30">
+            </div>
+            <div class="attribute-mod" id="mod_str">+3</div>
+            <div class="attribute-tag">Ataques corpo-a-corpo e Atletismo</div>
+          </div>
+
+          <!-- DESTREZA -->
+          <div class="attribute-box">
+            <div class="attribute-name">Destreza (DES)</div>
+            <div class="attribute-score-wrap">
+              <input type="number" id="attr_dex" data-bind="attributes.dex" value="14" min="1" max="30">
+            </div>
+            <div class="attribute-mod" id="mod_dex">+2</div>
+            <div class="attribute-tag">CA, Reflexos, Ataques à distância</div>
+          </div>
+
+          <!-- CONSTITUIÇÃO -->
+          <div class="attribute-box">
+            <div class="attribute-name">Constituição (CON)</div>
+            <div class="attribute-score-wrap">
+              <input type="number" id="attr_con" data-bind="attributes.con" value="14" min="1" max="30">
+            </div>
+            <div class="attribute-mod" id="mod_con">+2</div>
+            <div class="attribute-tag">Pontos de Vida e Fortitude</div>
+          </div>
+
+          <!-- INTELIGÊNCIA -->
+          <div class="attribute-box">
+            <div class="attribute-name">Inteligência (INT)</div>
+            <div class="attribute-score-wrap">
+              <input type="number" id="attr_int" data-bind="attributes.int" value="10" min="1" max="30">
+            </div>
+            <div class="attribute-mod" id="mod_int">+0</div>
+            <div class="attribute-tag">Perícias mentais e Idiomas</div>
+          </div>
+
+          <!-- SABEDORIA -->
+          <div class="attribute-box">
+            <div class="attribute-name">Sabedoria (SAB)</div>
+            <div class="attribute-score-wrap">
+              <input type="number" id="attr_wis" data-bind="attributes.wis" value="12" min="1" max="30">
+            </div>
+            <div class="attribute-mod" id="mod_wis">+1</div>
+            <div class="attribute-tag">Percepção, Iniciativa e Vontade</div>
+          </div>
+
+          <!-- CARISMA -->
+          <div class="attribute-box">
+            <div class="attribute-name">Carisma (CAR)</div>
+            <div class="attribute-score-wrap">
+              <input type="number" id="attr_cha" data-bind="attributes.cha" value="10" min="1" max="30">
+            </div>
+            <div class="attribute-mod" id="mod_cha">+0</div>
+            <div class="attribute-tag">Diplomacia e Imposição Social</div>
+          </div>
+        </div>
+
+        <!-- SEÇÃO DE PERÍCIAS NA MESMA ABA -->
+        <div style="margin-top: 32px; padding-top: 8px;">
+          <h3 class="sub-title" style="font-size: 1.05rem; margin-bottom: 10px;">Perícias e Proficiências</h3>
+          <p style="color: var(--text-subtle); font-size: 0.9rem; margin-bottom: 14px;">
+            Bônus Total = Modificador de Atributo + Proficiência (Indestinado=0, Treinado=2+Nível, Especialista=4+Nível, Mestre=6+Nível, Lendário=8+Nível) + Item - Penalidade de Armadura + Outros.
+          </p>
+
+          <div class="skills-table-wrap">
+            <table class="tome-table" id="skillsTable">
+              <thead>
+                <tr>
+                  <th>Perícia</th>
+                  <th class="center">Total</th>
+                  <th>Atributo</th>
+                  <th>Mod</th>
+                  <th>Proficiência</th>
+                  <th>Item</th>
+                  <th>Armadura</th>
+                  <th>Outro</th>
+                </tr>
+              </thead>
+              <tbody id="skillsTableBody">
+                <!-- Gerado via script -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 3: DEFESA E SAÚDE -->
+    <section class="tab-content" id="tab-defesa">
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">III. Defesa e Vitalidade</h2>
+
+        <div class="defenses-row">
+          <!-- PAINEL CLASSE DE ARMADURA -->
+          <div class="big-stat-panel">
+            <div class="big-stat-header">
+              <h3 class="font-ornate" style="font-size: 1rem; color: var(--gold-bright);">Classe de Armadura (CA)</h3>
+              <div class="big-stat-value" id="totalAcDisplay">18</div>
+            </div>
+            <div class="stat-breakdown">
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Base</label>
+                <input type="number" value="10" readonly class="calc-readonly-box">
+              </div>
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Armadura</label>
+                <input type="number" id="acArmor" data-bind="defense.armorBonus" value="4">
+              </div>
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Proficiência</label>
+                <select id="acProf" class="prof-select" data-bind="defense.armorProf">
+                  <option value="0">I (+0)</option>
+                  <option value="2" selected>T (+2+N)</option>
+                  <option value="4">E (+4+N)</option>
+                  <option value="6">M (+6+N)</option>
+                  <option value="8">L (+8+N)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Destreza</label>
+                <input type="number" id="acDexCap" data-bind="defense.armorDexCap" value="1" title="Bônus máximo de Des permitido pela armadura">
+              </div>
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Outro</label>
+                <input type="number" id="acOther" data-bind="defense.armorOther" value="0">
+              </div>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-subtle); margin-top: 6px;">
+              CA Sem Escudo / Toque: <strong id="touchAcDisplay" class="calc-embossed" style="padding: 1px 6px; display: inline-block;">18</strong> | Escudo erguido bônus:
+              <input type="number" id="shieldBonus" data-bind="defense.shieldBonus" value="2" style="width: 45px; display: inline-block; padding: 2px 4px;">
+            </div>
+          </div>
+
+          <!-- PAINEL PONTOS DE VIDA -->
+          <div class="big-stat-panel">
+            <div class="big-stat-header">
+              <h3 class="font-ornate" style="font-size: 1rem; color: var(--gold-bright);">Pontos de Vida (PV)</h3>
+              <div class="big-stat-value" style="color: var(--accent-text);">
+                <span id="currentHpDisplay">20</span> / <span id="maxHpDisplay">20</span>
+              </div>
+            </div>
+            <div class="stat-breakdown">
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Atuais</label>
+                <input type="number" id="hpCurrent" data-bind="defense.hpCurrent" value="20">
+              </div>
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Máximo</label>
+                <input type="number" id="hpMax" data-bind="defense.hpMax" value="20">
+              </div>
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Temporários</label>
+                <input type="number" id="hpTemp" data-bind="defense.hpTemp" value="0">
+              </div>
+              <div>
+                <label style="font-size: 0.68rem; color: var(--gold);">Dying / Ferido</label>
+                <input type="number" id="woundedVal" data-bind="defense.wounded" value="0" min="0" max="4">
+              </div>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-subtle); margin-top: 6px;">
+              Velocidade: <input type="text" id="charSpeed" data-bind="defense.speed" value="6m (20ft)" style="width: 90px; padding: 2px 4px; display: inline-block;">
+              | Resistências: <input type="text" id="charResistances" data-bind="defense.resistances" value="Nenhuma" style="width: 130px; padding: 2px 4px; display: inline-block;">
+            </div>
+          </div>
+        </div>
+
+        <!-- SALVAGUARDAS (SAVES) E PERCEPÇÃO -->
+        <h3 class="sub-title">Salvaguardas e Prontidão</h3>
+        <div class="skills-table-wrap" style="margin-bottom: 24px;">
+          <table class="tome-table">
+            <thead>
+              <tr>
+                <th>Salvaguarda</th>
+                <th class="center">Total</th>
+                <th>Atributo Base</th>
+                <th>Proficiência</th>
+                <th>Item</th>
+                <th>Outro</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Fortitude</strong> (CON)</td>
+                <td class="center"><span class="skill-total" id="saveFortTotal">+5</span></td>
+                <td><input type="number" id="saveFortAttr" readonly value="2" class="calc-readonly-box"></td>
+                <td>
+                  <select id="saveFortProf" class="prof-select" data-bind="defense.saves.fort.prof">
+                    <option value="0">Indestinado (0)</option>
+                    <option value="2">Treinado (+2+N)</option>
+                    <option value="4" selected>Especialista (+4+N)</option>
+                    <option value="6">Mestre (+6+N)</option>
+                    <option value="8">Lendário (+8+N)</option>
+                  </select>
+                </td>
+                <td><input type="number" id="saveFortItem" data-bind="defense.saves.fort.item" value="0"></td>
+                <td><input type="number" id="saveFortOther" data-bind="defense.saves.fort.other" value="0"></td>
+              </tr>
+              <tr>
+                <td><strong>Reflexos</strong> (DES)</td>
+                <td class="center"><span class="skill-total" id="saveRefTotal">+5</span></td>
+                <td><input type="number" id="saveRefAttr" readonly value="2" class="calc-readonly-box"></td>
+                <td>
+                  <select id="saveRefProf" class="prof-select" data-bind="defense.saves.ref.prof">
+                    <option value="0">Indestinado (0)</option>
+                    <option value="2" selected>Treinado (+2+N)</option>
+                    <option value="4">Especialista (+4+N)</option>
+                    <option value="6">Mestre (+6+N)</option>
+                    <option value="8">Lendário (+8+N)</option>
+                  </select>
+                </td>
+                <td><input type="number" id="saveRefItem" data-bind="defense.saves.ref.item" value="0"></td>
+                <td><input type="number" id="saveRefOther" data-bind="defense.saves.ref.other" value="0"></td>
+              </tr>
+              <tr>
+                <td><strong>Vontade</strong> (SAB)</td>
+                <td class="center"><span class="skill-total" id="saveWillTotal">+4</span></td>
+                <td><input type="number" id="saveWillAttr" readonly value="1" class="calc-readonly-box"></td>
+                <td>
+                  <select id="saveWillProf" class="prof-select" data-bind="defense.saves.will.prof">
+                    <option value="0">Indestinado (0)</option>
+                    <option value="2" selected>Treinado (+2+N)</option>
+                    <option value="4">Especialista (+4+N)</option>
+                    <option value="6">Mestre (+6+N)</option>
+                    <option value="8">Lendário (+8+N)</option>
+                  </select>
+                </td>
+                <td><input type="number" id="saveWillItem" data-bind="defense.saves.will.item" value="0"></td>
+                <td><input type="number" id="saveWillOther" data-bind="defense.saves.will.other" value="0"></td>
+              </tr>
+              <tr>
+                <td><strong>Percepção e Sentidos</strong> (SAB)</td>
+                <td class="center"><span class="skill-total" id="savePercTotal">+4</span></td>
+                <td><input type="number" id="savePercAttr" readonly value="1" class="calc-readonly-box"></td>
+                <td>
+                  <select id="savePercProf" class="prof-select" data-bind="defense.perception.prof">
+                    <option value="0">Indestinado (0)</option>
+                    <option value="2" selected>Treinado (+2+N)</option>
+                    <option value="4">Especialista (+4+N)</option>
+                    <option value="6">Mestre (+6+N)</option>
+                    <option value="8">Lendário (+8+N)</option>
+                  </select>
+                </td>
+                <td><input type="number" id="savePercItem" data-bind="defense.perception.item" value="0"></td>
+                <td><input type="number" id="savePercOther" data-bind="defense.perception.other" value="0"></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- CONDIÇÕES ATIVAS -->
+        <h3 class="sub-title">Condições de Combate e Aflições</h3>
+        <div class="conditions-container" id="conditionsContainer">
+          <!-- Injetado dinamicamente -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 4: TALENTOS -->
+    <section class="tab-content" id="tab-talentos">
+      <!-- 1. Talentos de Classe -->
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">Talentos de Classe</h2>
+        <div id="featsClassContainer" class="feats-category-container"></div>
+        <div class="list-actions-footer">
+          <button type="button" class="btn-grimoire" id="btnAddFeatClass">+ Adicionar talento</button>
+        </div>
+      </div>
+
+      <!-- 2. Talentos Gerais -->
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">Talentos Gerais</h2>
+        <div id="featsGeneralContainer" class="feats-category-container"></div>
+        <div class="list-actions-footer">
+          <button type="button" class="btn-grimoire" id="btnAddFeatGeneral">+ Adicionar talento</button>
+        </div>
+      </div>
+
+      <!-- 3. Talentos de Perícia -->
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">Talentos de Perícia</h2>
+        <div id="featsSkillContainer" class="feats-category-container"></div>
+        <div class="list-actions-footer">
+          <button type="button" class="btn-grimoire" id="btnAddFeatSkill">+ Adicionar talento</button>
+        </div>
+      </div>
+
+      <!-- 4. Talentos de Antecedente -->
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">Talentos de Antecedente</h2>
+        <div id="featsBackgroundContainer" class="feats-category-container"></div>
+        <div class="list-actions-footer">
+          <button type="button" class="btn-grimoire" id="btnAddFeatBackground">+ Adicionar talento</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 5: ATAQUES -->
+    <section class="tab-content" id="tab-ataques">
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <div class="dynamic-list-header">
+          <h2 class="section-title" style="margin-bottom:0;">V. Armas e Manobras de Batalha</h2>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr 2fr 40px; gap: 10px; margin-top: 14px; margin-bottom: 6px; font-family: var(--font-heading); font-size: 0.72rem; color: var(--gold); padding: 0 10px;">
+          <div>Nome da Arma / Ataque</div>
+          <div>Bônus Atk</div>
+          <div>Dano / Tipo</div>
+          <div>Traços (Traits)</div>
+          <div>Alcance e Notas</div>
+          <div></div>
+        </div>
+
+        <div id="attacksListContainer">
+          <!-- Linhas de ataques inseridas aqui -->
+        </div>
+
+        <div class="list-actions-footer">
+          <button type="button" class="btn-grimoire" id="btnAddAttack">+ Adicionar</button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-ornate);">
+          <div class="form-group">
+            <label>Penalidade por Ataques Múltiplos (MAP)</label>
+            <input type="text" class="form-input" readonly value="1º: 0 | 2º: -5 (-4 Ágil) | 3º: -10 (-8 Ágil)" style="opacity: 0.85;">
+          </div>
+          <div class="form-group">
+            <label>Carga Total Suportada (Bulk)</label>
+            <input type="text" id="bulkCapacity" class="form-input" data-bind="equipment.bulkTotal" placeholder="Ex: 5L / Máx 11">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 6: MAGIAS -->
+    <section class="tab-content" id="tab-magias">
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">VI. Conjuração e Grimório de Magias</h2>
+
+        <!-- DADOS GERAIS DE CONJURAÇÃO -->
+        <div class="magic-stats-bar">
+          <div class="form-group">
+            <label for="spellKeyAttr">Atributo-Chave de Conjuração</label>
+            <select id="spellKeyAttr" class="form-select" data-bind="magic.keyAttr">
+              <option value="int">Inteligência (Mago, Bruxaria)</option>
+              <option value="wis">Sabedoria (Clérigo, Druida)</option>
+              <option value="cha">Carisma (Bardo, Feiticeiro)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="spellTradition">Tradição Mágica</label>
+            <select id="spellTradition" class="form-select" data-bind="magic.tradition">
+              <option value="Arcana">Arcana</option>
+              <option value="Divina">Divina</option>
+              <option value="Oculta">Oculta</option>
+              <option value="Primitiva">Primitiva</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>CD de Magia (Spell DC)</label>
+            <input type="text" id="spellDcDisplay" class="form-input calc-result" readonly value="13">
+          </div>
+          <div class="form-group">
+            <label>Ataque Mágico (Spell Attack)</label>
+            <input type="text" id="spellAtkDisplay" class="form-input calc-result" readonly value="+3">
+          </div>
+        </div>
+
+        <!-- ESPAÇOS DE MAGIA (SLOTS) -->
+        <h3 class="sub-title">Espaços de Magia por Círculo (Restantes / Totais)</h3>
+        <div class="spell-slots-grid" id="spellSlotsContainer">
+          <!-- 1º ao 9º nível gerados via script -->
+        </div>
+
+        <!-- LISTA DE MAGIAS CONHECIDAS / PREPARADAS -->
+        <div class="dynamic-list-header">
+          <h3 class="sub-title" style="margin-bottom:0;">Magias Conhecidas e Truques (Cantrips)</h3>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2.5fr 1fr 1fr 2.5fr 40px; gap: 10px; margin-top: 14px; margin-bottom: 6px; font-family: var(--font-heading); font-size: 0.72rem; color: var(--gold); padding: 0 10px;">
+          <div>Nome da Magia</div>
+          <div>Círculo / Nível</div>
+          <div>Ações / Tempo</div>
+          <div>Efeito / Descrição Resumida</div>
+          <div></div>
+        </div>
+
+        <div id="spellsListContainer">
+          <!-- Linhas de magia -->
+        </div>
+
+        <div class="list-actions-footer">
+          <button type="button" class="btn-grimoire" id="btnAddSpell">+ Adicionar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 7: ARQUÉTIPOS -->
+    <section class="tab-content" id="tab-arquetipos">
+      <div id="archetypesListContainer">
+        <!-- Blocos de arquétipos renderizados dinamicamente -->
+      </div>
+      <div class="list-actions-footer" style="margin-top: 8px; margin-bottom: 30px;">
+        <button type="button" class="btn-grimoire" id="btnAddArchetype">+ Adicionar arquétipo</button>
+      </div>
+    </section>
+
+    <!-- ABA 8: EQUIPAMENTO -->
+    <section class="tab-content" id="tab-equipamento">
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <div class="dynamic-list-header">
+          <h2 class="section-title" style="margin-bottom:0;">VIII. Inventário e Riquezas</h2>
+        </div>
+
+        <!-- MOEDAS -->
+        <div class="currency-grid">
+          <div class="coin-badge">
+            <span class="coin-label">Platina (PP)</span>
+            <input type="number" id="coinPP" data-bind="equipment.coins.pp" class="form-input" style="width: 80px; text-align: center;" value="0" min="0">
+          </div>
+          <div class="coin-badge">
+            <span class="coin-label">Ouro (PO)</span>
+            <input type="number" id="coinGP" data-bind="equipment.coins.gp" class="form-input" style="width: 80px; text-align: center;" value="15" min="0">
+          </div>
+          <div class="coin-badge">
+            <span class="coin-label">Prata (PE)</span>
+            <input type="number" id="coinSP" data-bind="equipment.coins.sp" class="form-input" style="width: 80px; text-align: center;" value="8" min="0">
+          </div>
+          <div class="coin-badge">
+            <span class="coin-label">Cobre (PC)</span>
+            <input type="number" id="coinCP" data-bind="equipment.coins.cp" class="form-input" style="width: 80px; text-align: center;" value="20" min="0">
+          </div>
+        </div>
+        <div style="margin-top: 10px; display: flex; justify-content: flex-end; align-items: center; gap: 8px;">
+          <span style="font-family: var(--font-heading); font-size: 0.76rem; color: var(--gold); letter-spacing: 0.08em; text-transform: uppercase;">Total Convertido em Ouro (PO):</span>
+          <span class="calc-embossed" id="totalGoldDisplay" style="min-width: 80px; padding: 4px 10px; display: inline-block;">15.82 PO</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 3fr 1fr 1fr 3fr 40px; gap: 10px; margin-top: 18px; margin-bottom: 6px; font-family: var(--font-heading); font-size: 0.72rem; color: var(--gold); padding: 0 10px;">
+          <div>Item / Artefato</div>
+          <div>Qtd.</div>
+          <div>Volume (Bulk)</div>
+          <div>Notas / Propriedades</div>
+          <div></div>
+        </div>
+
+        <div id="equipmentListContainer">
+          <!-- Linhas de itens inseridas aqui -->
+        </div>
+
+        <div class="list-actions-footer">
+          <button type="button" class="btn-grimoire" id="btnAddItem">+ Adicionar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 9: NOTAS -->
+    <section class="tab-content" id="tab-notas">
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">IX. Crônicas, Aliados e Objetivos</h2>
+        
+        <div class="form-grid" style="margin-bottom: 20px;">
+          <div class="form-group">
+            <label for="alliesInput">Aliados e Organizações</label>
+            <textarea id="alliesInput" class="form-textarea" data-bind="notes.allies" placeholder="Irmandades, mestres, devedores de favores e guildas..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="enemiesInput">Inimigos e Ameaças Juradas</label>
+            <textarea id="enemiesInput" class="form-textarea" data-bind="notes.enemies" placeholder="Nêmesis, cultistas, bestas caçadas..."></textarea>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+          <label for="questsInput">Objetivos e Demandas Atuais</label>
+          <textarea id="questsInput" class="form-textarea" data-bind="notes.quests" placeholder="Contratos em andamento, mistérios a desvendar..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="freeNotesInput">Anotações Gerais de Campanha</label>
+          <textarea id="freeNotesInput" class="form-textarea" style="min-height: 180px;" data-bind="notes.general" placeholder="Regras da casa, segredos revelados, anotações de sessões..."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABA 10: LEMBRANÇAS -->
+    <section class="tab-content" id="tab-lembrancas">
+      <div class="grimoire-card">
+        <span class="card-corner-bl">❖</span>
+        <span class="card-corner-br">❖</span>
+        <h2 class="section-title">X. Mural de Lembranças e Relíquias</h2>
+        <p style="color: var(--text-subtle); margin-bottom: 22px; font-size: 0.95rem;">
+          Retratos, mapas e fragmentos visuais colhidos ao longo das campanhas. Dê um duplo clique sobre o retrato para revelar o verso e inscrever suas memórias.
+        </p>
+
+        <div id="memoriesContainer" class="memories-masonry">
+          <!-- Cartões de lembranças renderizados dinamicamente -->
+        </div>
+
+        <div class="list-actions-footer">
+          <button type="button" class="btn-grimoire" id="btnAddMemory">+ Adicionar lembrança</button>
+          <input type="file" id="memoryFileInput" accept="image/*" multiple style="display: none;">
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+      </div> <!-- fim .grimoire-frame-inner -->
+    </div> <!-- fim .grimoire-frame-outer -->
+  </div> <!-- fim .page-grimoire-wrapper -->
+
+  <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
+
+  <script>
+    /* =========================================================================
+       SISTEMA DE FICHA DE PERSONAGEM — PATHFINDER 2E (DARK FANTASY)
+       Gerenciamento de Estado Reativo, Persistência Local e Cálculos de Regras
+       ========================================================================= */
+
+    const PF2E_SKILLS_DATA = [
+      { id: "acrobatics", name: "Acrobacia", attr: "dex" },
+      { id: "arcana", name: "Arcanismo", attr: "int" },
+      { id: "athletics", name: "Atletismo", attr: "str" },
+      { id: "crafting", name: "Ofício", attr: "int" },
+      { id: "deception", name: "Enganação", attr: "cha" },
+      { id: "diplomacy", name: "Diplomacia", attr: "cha" },
+      { id: "intimidation", name: "Intimidação", attr: "cha" },
+      { id: "lore1", name: "Saber / Conhecimento (Guerra)", attr: "int" },
+      { id: "lore2", name: "Saber / Conhecimento (Submundo)", attr: "int" },
+      { id: "medicine", name: "Medicina", attr: "wis" },
+      { id: "nature", name: "Natureza", attr: "wis" },
+      { id: "occultism", name: "Ocultismo", attr: "int" },
+      { id: "performance", name: "Atuação", attr: "cha" },
+      { id: "religion", name: "Religião", attr: "wis" },
+      { id: "society", name: "Sociedade", attr: "int" },
+      { id: "stealth", name: "Furtividade", attr: "dex" },
+      { id: "survival", name: "Sobrevivência", attr: "wis" },
+      { id: "thievery", name: "Ladinagem", attr: "dex" }
+    ];
+
+    const PF2E_CONDITIONS = [
+      "Abalado (Frightened)", "Agarrado (Grappled)", "Atordoado (Stunned)", "Caído (Prone)",
+      "Cego (Blinded)", "Confuso (Confused)", "Drenado (Drained)", "Enjoado (Sickened)",
+      "Fascinado (Fascinated)", "Fatigado (Fatigued)", "Imobilizado (Immobilized)",
+      "Invisível (Invisible)", "Lento (Slowed)", "Paralisado (Paralyzed)", "Surdo (Deafened)"
+    ];
+
+    const STORAGE_KEY = "pf2e_dark_grimoire_characters_v1";
+    const CURRENT_CHAR_KEY = "pf2e_dark_grimoire_active_char_id";
+
+    // Objeto Modelo Padrão de um Personagem
+    function createDefaultCharacter(id, name) {
+      return {
+        id: id || "char_" + Date.now(),
+        identity: {
+          name: name || "Herói Sem Nome",
+          ancestry: "Humano Versátil",
+          background: "Guerreiro Veterano",
+          class: "Guerreiro",
+          level: 1,
+          size: "Médio",
+          alignment: "Neutro e Bom",
+          deity: "Gorum",
+          backstory: "Sobrevivente das guerras sangrentas das fronteiras, carrega a espada calejada de cicatrizes e o peso de camaradas tombados no esquecimento."
+        },
+        attributes: {
+          str: 16,
+          dex: 14,
+          con: 14,
+          int: 10,
+          wis: 12,
+          cha: 10
+        },
+        defense: {
+          armorBonus: 4,
+          armorProf: 2,
+          armorDexCap: 1,
+          armorOther: 0,
+          shieldBonus: 2,
+          hpCurrent: 20,
+          hpMax: 20,
+          hpTemp: 0,
+          wounded: 0,
+          speed: "6m (20ft)",
+          resistances: "Nenhuma",
+          saves: {
+            fort: { prof: 4, item: 0, other: 0 },
+            ref: { prof: 2, item: 0, other: 0 },
+            will: { prof: 2, item: 0, other: 0 }
+          },
+          perception: { prof: 2, item: 0, other: 0 },
+          activeConditions: {}
+        },
+        skills: {
+          athletics: { prof: 2, item: 0, armor: 0, other: 0 },
+          intimidation: { prof: 2, item: 0, armor: 0, other: 0 },
+          survival: { prof: 2, item: 0, armor: 0, other: 0 }
+        },
+        talentos: {
+          classe: [
+            {
+              id: "feat_cls_1",
+              titulo: "Golpe Poderoso",
+              tags: ["Classe", "Guerreiro", "Golpe"],
+              nivel: 1,
+              descricao: "Faça um Golpe corpo a corpo com uma arma empunhada com ambas as mãos. Caso acerte, você desfere um impacto devastador que adiciona um dado extra de dano da arma."
+            }
+          ],
+          geral: [
+            {
+              id: "feat_ger_1",
+              titulo: "Iniciativa Aprimorada",
+              tags: ["Geral"],
+              nivel: 1,
+              descricao: "Seus reflexos em combate são rápidos como um relâmpago. Você recebe um bônus circunstancial de +2 em todos os seus testes de Iniciativa."
+            }
+          ],
+          pericia: [
+            {
+              id: "feat_per_1",
+              titulo: "Salto Poderoso",
+              tags: ["Perícia", "Geral", "Atletismo"],
+              nivel: 1,
+              descricao: "Quando você realiza um Salto em Distância, você pode saltar uma distância horizontal igual ao seu Deslocamento se passar no teste."
+            }
+          ],
+          antecedente: [
+            {
+              id: "feat_ant_1",
+              titulo: "Treinamento em Armadura Pesada",
+              tags: ["Antecedente", "Geral"],
+              nivel: 1,
+              descricao: "Adquirido pelos anos de combate militar contínuo sob as armaduras forjadas do batalhão nas fronteiras cinzentas."
+            }
+          ]
+        },
+        attacks: [
+          {
+            name: "Espada Bastarda",
+            bonus: "+7",
+            damage: "1d8+3 Cortante",
+            traits: "Duas Mãos (1d12)",
+            notes: "Alcance normal, forjada em aço negro"
+          },
+          {
+            name: "Besta Pesada",
+            bonus: "+5",
+            damage: "1d10 Perfurante",
+            traits: "Recarga 2",
+            notes: "Distância 36m (120ft)"
+          }
+        ],
+        magic: {
+          keyAttr: "wis",
+          tradition: "Divina",
+          slots: {
+            1: { current: 2, max: 2 },
+            2: { current: 0, max: 0 },
+            3: { current: 0, max: 0 },
+            4: { current: 0, max: 0 },
+            5: { current: 0, max: 0 },
+            6: { current: 0, max: 0 },
+            7: { current: 0, max: 0 },
+            8: { current: 0, max: 0 },
+            9: { current: 0, max: 0 }
+          },
+          spells: [
+            { name: "Orientação (Guidance)", level: "Truque", time: "1 Ação", notes: "+1 em um teste de perícia ou ataque" },
+            { name: "Curar (Heal)", level: "1º Círculo", time: "1-3 Ações", notes: "Cura 1d8 (+8 por 2 ações) de vitalidade" }
+          ]
+        },
+        archetypes: [
+          {
+            id: "arch_" + Date.now(),
+            titulo: "Cavaleiro do Sangue Ancestral",
+            descricao: "Guerreiro iniciado nos ritos sombrios dos túmulos esquecidos, canalizando a ferocidade de antigas linhagens em golpes devastadores e resiliência sobrenatural.",
+            imagem: null,
+            talentos: [
+              {
+                id: "feat_1",
+                titulo: "Dedicação de Cavaleiro do Sangue",
+                tags: ["Arquétipo", "Dedicação", "Sangue"],
+                nivel: 2,
+                descricao: "Seu sangue ressoa com os mortos de batalha. Você ganha visão na penumbra e resistência 2 contra dano de sangramento contínuo."
+              },
+              {
+                id: "feat_2",
+                titulo: "Golpe Necrótico Carmesim",
+                tags: ["Arquétipo", "Golpe", "Necromancia"],
+                nivel: 4,
+                descricao: "Gaste 1 Ação antes de um Golpe corpo-a-corpo: causa 1d6 de dano de sangramento adicional se o ataque acertar."
+              }
+            ]
+          }
+        ],
+        equipment: {
+          bulkTotal: "4L / 11",
+          coins: { pp: 0, gp: 15, sp: 8, cp: 20 },
+          items: [
+            { name: "Cota de Malha Completa", qty: 1, bulk: "2", notes: "CA +4, Bônus Máx Des +1, Penalidade -2" },
+            { name: "Escudo de Aço", qty: 1, bulk: "1", notes: "Dureza 5, PV 20, BT 10" },
+            { name: "Kit de Aventureiro", qty: 1, bulk: "1", notes: "Mochila, tochas, rações, saco de dormir" },
+            { name: "Corda de Cânhamo (15m)", qty: 1, bulk: "L", notes: "Resistente para escaladas" }
+          ]
+        },
+        notes: {
+          allies: "Irmandade da Vigília Noturna, Ferreiro Boros em Cinzas Novas.",
+          enemies: "Os fanáticos da Serpente Cinzenta que incendiaram o Forte do Rio.",
+          quests: "Recuperar o medalhão de prata selado nas Catacumbas Esquecidas.",
+          general: "Anotação: Sempre verificar armadilhas antes de arrombar portas no templo subterrâneo."
+        },
+        lembrancas: [
+          {
+            id: "mem_init_1",
+            imagem: "https://img.usecurling.com/p/600/400?q=dark%20castle%20ruins&color=black",
+            texto: "As ruínas do Forte das Brumas, onde nossa guarda fez o último cerco contra a horda esquecida. Poucos retornaram para contar a história."
+          }
+        ]
+      };
+    }
+
+    // Estado da Aplicação
+    let appState = {
+      characters: {},
+      activeCharId: null
+    };
+
+    let saveDebounceTimer = null;
+
+    // Inicialização do Armazenamento
+    function initStorage() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      const storedActiveId = localStorage.getItem(CURRENT_CHAR_KEY);
+
+      if (stored) {
+        try {
+          appState.characters = JSON.parse(stored);
+        } catch (e) {
+          console.error("Falha ao analisar personagens do localStorage", e);
+          appState.characters = {};
+        }
+      }
+
+      if (Object.keys(appState.characters).length === 0) {
+        const defaultChar = createDefaultCharacter("char_default_1", "Althea Vane");
+        appState.characters[defaultChar.id] = defaultChar;
+        appState.activeCharId = defaultChar.id;
+      } else {
+        if (storedActiveId && appState.characters[storedActiveId]) {
+          appState.activeCharId = storedActiveId;
+        } else {
+          appState.activeCharId = Object.keys(appState.characters)[0];
+        }
+      }
+
+      saveToStorage(false);
+    }
+
+    function saveToStorage(indicate = true) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.characters));
+        localStorage.setItem(CURRENT_CHAR_KEY, appState.activeCharId);
+
+        if (indicate) {
+          const pill = document.getElementById("saveIndicator");
+          if (pill) {
+            pill.innerHTML = "<span>✦</span> Gravando...";
+            pill.classList.remove("saved");
+            clearTimeout(saveDebounceTimer);
+            saveDebounceTimer = setTimeout(() => {
+              pill.innerHTML = "<span>●</span> Salvo";
+              pill.classList.add("saved");
+            }, 450);
+          }
+        }
+      } catch (err) {
+        if (err.name === "QuotaExceededError" || err.code === 22) {
+          alert("Aviso: Limite de armazenamento local excedido. Remova algumas imagens de arquétipos para salvar novos dados.");
+        } else {
+          console.error("Falha ao salvar no localStorage", err);
+        }
+      }
+    }
+
+    function ensureCharacterStructures(char) {
+      if (!char) return;
+      if (!char.talentos || typeof char.talentos !== "object") {
+        char.talentos = {};
+      }
+      if (!Array.isArray(char.talentos.classe)) char.talentos.classe = [];
+      if (!Array.isArray(char.talentos.geral)) char.talentos.geral = [];
+      if (!Array.isArray(char.talentos.pericia)) char.talentos.pericia = [];
+      if (!Array.isArray(char.talentos.antecedente)) char.talentos.antecedente = [];
+      if (!Array.isArray(char.archetypes)) char.archetypes = [];
+      if (!Array.isArray(char.attacks)) char.attacks = [];
+      if (!char.magic) char.magic = { slots: {}, spells: [] };
+      if (!Array.isArray(char.magic.spells)) char.magic.spells = [];
+      if (!char.equipment) char.equipment = { coins: {}, items: [] };
+      if (!Array.isArray(char.equipment.items)) char.equipment.items = [];
+      if (!Array.isArray(char.lembrancas)) char.lembrancas = [];
+    }
+
+    function getActiveChar() {
+      const char = appState.characters[appState.activeCharId];
+      if (char) ensureCharacterStructures(char);
+      return char;
+    }
+
+    // Utilitário de modificador: floor((valor - 10) / 2)
+    function calcModifier(score) {
+      const val = parseInt(score, 10) || 10;
+      return Math.floor((val - 10) / 2);
+    }
+
+    function formatMod(val) {
+      return val >= 0 ? `+${val}` : `${val}`;
+    }
+
+    // Renderizador de Condições
+    function renderConditions() {
+      const container = document.getElementById("conditionsContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const char = getActiveChar();
+      const activeMap = char.defense.activeConditions || {};
+
+      PF2E_CONDITIONS.forEach(cond => {
+        const label = document.createElement("label");
+        label.className = "condition-label";
+
+        const chk = document.createElement("input");
+        chk.type = "checkbox";
+        chk.checked = !!activeMap[cond];
+        chk.addEventListener("change", (e) => {
+          if (!char.defense.activeConditions) char.defense.activeConditions = {};
+          if (e.target.checked) {
+            char.defense.activeConditions[cond] = true;
+          } else {
+            delete char.defense.activeConditions[cond];
+          }
+          saveToStorage(true);
+        });
+
+        label.appendChild(chk);
+        label.appendChild(document.createTextNode(cond));
+        container.appendChild(label);
+      });
+    }
+
+    // Renderizador de Tabela de Perícias
+    function renderSkillsTable() {
+      const tbody = document.getElementById("skillsTableBody");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+      const char = getActiveChar();
+      const charLevel = parseInt(char.identity.level, 10) || 1;
+
+      PF2E_SKILLS_DATA.forEach(sk => {
+        const skState = (char.skills && char.skills[sk.id]) ? char.skills[sk.id] : { prof: 0, item: 0, armor: 0, other: 0 };
+        const attrMod = calcModifier(char.attributes[sk.attr] || 10);
+
+        const profBonusBase = parseInt(skState.prof, 10) || 0;
+        const profTotalBonus = profBonusBase > 0 ? (profBonusBase + charLevel) : 0;
+        const itemVal = parseInt(skState.item, 10) || 0;
+        const armorVal = parseInt(skState.armor, 10) || 0;
+        const otherVal = parseInt(skState.other, 10) || 0;
+
+        const totalSkill = attrMod + profTotalBonus + itemVal - Math.abs(armorVal) + otherVal;
+
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+          <td><strong>${sk.name}</strong></td>
+          <td class="center"><span class="skill-total" id="skill_tot_${sk.id}">${formatMod(totalSkill)}</span></td>
+          <td><span style="font-size:0.8rem; color:var(--gold); text-transform:uppercase;">${sk.attr.toUpperCase()}</span></td>
+          <td><span class="calc-embossed" style="display:inline-block; min-width:32px; padding:2px;" id="skill_attrmod_${sk.id}">${formatMod(attrMod)}</span></td>
+          <td>
+            <select class="prof-select" data-skill-id="${sk.id}" data-type="prof">
+              <option value="0" ${profBonusBase === 0 ? "selected" : ""}>I (+0)</option>
+              <option value="2" ${profBonusBase === 2 ? "selected" : ""}>T (+2+N)</option>
+              <option value="4" ${profBonusBase === 4 ? "selected" : ""}>E (+4+N)</option>
+              <option value="6" ${profBonusBase === 6 ? "selected" : ""}>M (+6+N)</option>
+              <option value="8" ${profBonusBase === 8 ? "selected" : ""}>L (+8+N)</option>
+            </select>
+          </td>
+          <td><input type="number" data-skill-id="${sk.id}" data-type="item" value="${itemVal}"></td>
+          <td><input type="number" data-skill-id="${sk.id}" data-type="armor" value="${armorVal}" ${sk.attr !== 'str' && sk.attr !== 'dex' ? 'disabled style="opacity:0.3;"' : ''}></td>
+          <td><input type="number" data-skill-id="${sk.id}" data-type="other" value="${otherVal}"></td>
+        `;
+
+        // Listeners
+        tr.querySelectorAll("select, input").forEach(el => {
+          el.addEventListener("input", (e) => {
+            const sid = e.target.getAttribute("data-skill-id");
+            const stype = e.target.getAttribute("data-type");
+            if (!char.skills) char.skills = {};
+            if (!char.skills[sid]) char.skills[sid] = { prof: 0, item: 0, armor: 0, other: 0 };
+
+            char.skills[sid][stype] = parseInt(e.target.value, 10) || 0;
+            updateCalculations();
+            saveToStorage(true);
+          });
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Renderizador de Slots de Magia (Círculos 1 a 9)
+    function renderSpellSlots() {
+      const container = document.getElementById("spellSlotsContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const char = getActiveChar();
+      if (!char.magic.slots) char.magic.slots = {};
+
+      for (let i = 1; i <= 9; i++) {
+        if (!char.magic.slots[i]) char.magic.slots[i] = { current: 0, max: 0 };
+        const slot = char.magic.slots[i];
+
+        const box = document.createElement("div");
+        box.className = "slot-card";
+        box.innerHTML = `
+          <label>${i}º Círculo</label>
+          <div class="slot-inputs">
+            <input type="number" min="0" value="${slot.current}" data-slot="${i}" data-kind="current" title="Slots Restantes">
+            <span style="color:var(--gold-dim);">/</span>
+            <input type="number" min="0" value="${slot.max}" data-slot="${i}" data-kind="max" title="Slots Totais">
+          </div>
+        `;
+
+        box.querySelectorAll("input").forEach(inp => {
+          inp.addEventListener("input", (e) => {
+            const circle = e.target.getAttribute("data-slot");
+            const kind = e.target.getAttribute("data-kind");
+            char.magic.slots[circle][kind] = parseInt(e.target.value, 10) || 0;
+            saveToStorage(true);
+          });
+        });
+
+        container.appendChild(box);
+      }
+    }
+
+    // Renderizador de Ataques
+    function renderAttacksList() {
+      const container = document.getElementById("attacksListContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const char = getActiveChar();
+      if (!Array.isArray(char.attacks)) char.attacks = [];
+
+      if (char.attacks.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--text-subtle); font-style:italic;">Nenhum ataque registrado no tomo. Use o botão acima para registrar armas.</div>`;
+        return;
+      }
+
+      char.attacks.forEach((atk, index) => {
+        const row = document.createElement("div");
+        row.className = "dynamic-row";
+        row.innerHTML = `
+          <input type="text" class="form-input" placeholder="Nome do Ataque / Arma" value="${escapeHtml(atk.name || '')}" data-idx="${index}" data-prop="name">
+          <input type="text" class="form-input" placeholder="+Bônus" value="${escapeHtml(atk.bonus || '')}" data-idx="${index}" data-prop="bonus">
+          <input type="text" class="form-input" placeholder="Dano (ex: 1d8+3 C)" value="${escapeHtml(atk.damage || '')}" data-idx="${index}" data-prop="damage">
+          <input type="text" class="form-input" placeholder="Traços (Traits)" value="${escapeHtml(atk.traits || '')}" data-idx="${index}" data-prop="traits">
+          <input type="text" class="form-input" placeholder="Notas e Alcance" value="${escapeHtml(atk.notes || '')}" data-idx="${index}" data-prop="notes">
+          <button type="button" class="btn-remove-row" data-idx="${index}" title="Excluir este ataque">✕</button>
+        `;
+
+        row.querySelectorAll("input").forEach(inp => {
+          inp.addEventListener("input", (e) => {
+            const idx = e.target.getAttribute("data-idx");
+            const prop = e.target.getAttribute("data-prop");
+            char.attacks[idx][prop] = e.target.value;
+            saveToStorage(true);
+          });
+        });
+
+        row.querySelector(".btn-remove-row").addEventListener("click", () => {
+          char.attacks.splice(index, 1);
+          renderAttacksList();
+          saveToStorage(true);
+        });
+
+        container.appendChild(row);
+      });
+    }
+
+    // Renderizador de Magias
+    function renderSpellsList() {
+      const container = document.getElementById("spellsListContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const char = getActiveChar();
+      if (!Array.isArray(char.magic.spells)) char.magic.spells = [];
+
+      if (char.magic.spells.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--text-subtle); font-style:italic;">Nenhuma magia inscrita no tomo. Clique em Adicionar Magia.</div>`;
+        return;
+      }
+
+      char.magic.spells.forEach((spl, index) => {
+        const row = document.createElement("div");
+        row.className = "spell-row";
+        row.innerHTML = `
+          <input type="text" class="form-input" placeholder="Nome da Magia" value="${escapeHtml(spl.name || '')}" data-idx="${index}" data-prop="name">
+          <input type="text" class="form-input" placeholder="Círculo (ex: Truque, 1º)" value="${escapeHtml(spl.level || '')}" data-idx="${index}" data-prop="level">
+          <input type="text" class="form-input" placeholder="Tempo / Ações" value="${escapeHtml(spl.time || '')}" data-idx="${index}" data-prop="time">
+          <input type="text" class="form-input" placeholder="Efeito e Alcance" value="${escapeHtml(spl.notes || '')}" data-idx="${index}" data-prop="notes">
+          <button type="button" class="btn-remove-row" data-idx="${index}" title="Excluir esta magia">✕</button>
+        `;
+
+        row.querySelectorAll("input").forEach(inp => {
+          inp.addEventListener("input", (e) => {
+            const idx = e.target.getAttribute("data-idx");
+            const prop = e.target.getAttribute("data-prop");
+            char.magic.spells[idx][prop] = e.target.value;
+            saveToStorage(true);
+          });
+        });
+
+        row.querySelector(".btn-remove-row").addEventListener("click", () => {
+          char.magic.spells.splice(index, 1);
+          renderSpellsList();
+          saveToStorage(true);
+        });
+
+        container.appendChild(row);
+      });
+    }
+
+    // Renderizador de Equipamento
+    function renderEquipmentList() {
+      const container = document.getElementById("equipmentListContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const char = getActiveChar();
+      if (!Array.isArray(char.equipment.items)) char.equipment.items = [];
+
+      if (char.equipment.items.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:18px; color:var(--text-subtle); font-style:italic;">O inventário está vazio. Adicione itens e artefatos.</div>`;
+        return;
+      }
+
+      char.equipment.items.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        row.innerHTML = `
+          <input type="text" class="form-input" placeholder="Nome do Item" value="${escapeHtml(item.name || '')}" data-idx="${index}" data-prop="name">
+          <input type="number" min="1" class="form-input" placeholder="Qtd" value="${item.qty || 1}" data-idx="${index}" data-prop="qty">
+          <input type="text" class="form-input" placeholder="Volume" value="${escapeHtml(item.bulk || '')}" data-idx="${index}" data-prop="bulk">
+          <input type="text" class="form-input" placeholder="Notas e Efeitos" value="${escapeHtml(item.notes || '')}" data-idx="${index}" data-prop="notes">
+          <button type="button" class="btn-remove-row" data-idx="${index}" title="Excluir este item">✕</button>
+        `;
+
+        row.querySelectorAll("input").forEach(inp => {
+          inp.addEventListener("input", (e) => {
+            const idx = e.target.getAttribute("data-idx");
+            const prop = e.target.getAttribute("data-prop");
+            char.equipment.items[idx][prop] = e.target.value;
+            saveToStorage(true);
+          });
+        });
+
+        row.querySelector(".btn-remove-row").addEventListener("click", () => {
+          char.equipment.items.splice(index, 1);
+          renderEquipmentList();
+          saveToStorage(true);
+        });
+
+        container.appendChild(row);
+      });
+    }
+
+    // Atualização de Cálculos em Tempo Real
+    function updateCalculations() {
+      const char = getActiveChar();
+      if (!char) return;
+
+      const level = parseInt(char.identity.level, 10) || 1;
+
+      // Atributos e Modificadores
+      const strMod = calcModifier(char.attributes.str);
+      const dexMod = calcModifier(char.attributes.dex);
+      const conMod = calcModifier(char.attributes.con);
+      const intMod = calcModifier(char.attributes.int);
+      const wisMod = calcModifier(char.attributes.wis);
+      const chaMod = calcModifier(char.attributes.cha);
+
+      const modMap = { str: strMod, dex: dexMod, con: conMod, int: intMod, wis: wisMod, cha: chaMod };
+
+      document.getElementById("mod_str").textContent = formatMod(strMod);
+      document.getElementById("mod_dex").textContent = formatMod(dexMod);
+      document.getElementById("mod_con").textContent = formatMod(conMod);
+      document.getElementById("mod_int").textContent = formatMod(intMod);
+      document.getElementById("mod_wis").textContent = formatMod(wisMod);
+      document.getElementById("mod_cha").textContent = formatMod(chaMod);
+
+      // CA (Classe de Armadura)
+      const armorBonus = parseInt(char.defense.armorBonus, 10) || 0;
+      const armorProf = parseInt(char.defense.armorProf, 10) || 0;
+      const armorProfBonus = armorProf > 0 ? (armorProf + level) : 0;
+      const dexCap = parseInt(char.defense.armorDexCap, 10) || 0;
+      const allowedDexMod = Math.min(dexMod, dexCap);
+      const armorOther = parseInt(char.defense.armorOther, 10) || 0;
+      const totalAc = 10 + armorBonus + armorProfBonus + allowedDexMod + armorOther;
+      document.getElementById("totalAcDisplay").textContent = totalAc;
+      document.getElementById("touchAcDisplay").textContent = 10 + armorProfBonus + allowedDexMod;
+
+      // PV
+      document.getElementById("currentHpDisplay").textContent = char.defense.hpCurrent || 0;
+      document.getElementById("maxHpDisplay").textContent = char.defense.hpMax || 0;
+
+      // Salvaguardas
+      // Fortitude (CON)
+      document.getElementById("saveFortAttr").value = conMod;
+      const fortProf = parseInt(char.defense.saves.fort.prof, 10) || 0;
+      const fortProfBonus = fortProf > 0 ? (fortProf + level) : 0;
+      const fortTot = conMod + fortProfBonus + (parseInt(char.defense.saves.fort.item, 10) || 0) + (parseInt(char.defense.saves.fort.other, 10) || 0);
+      document.getElementById("saveFortTotal").textContent = formatMod(fortTot);
+
+      // Reflexos (DES)
+      document.getElementById("saveRefAttr").value = dexMod;
+      const refProf = parseInt(char.defense.saves.ref.prof, 10) || 0;
+      const refProfBonus = refProf > 0 ? (refProf + level) : 0;
+      const refTot = dexMod + refProfBonus + (parseInt(char.defense.saves.ref.item, 10) || 0) + (parseInt(char.defense.saves.ref.other, 10) || 0);
+      document.getElementById("saveRefTotal").textContent = formatMod(refTot);
+
+      // Vontade (SAB)
+      document.getElementById("saveWillAttr").value = wisMod;
+      const willProf = parseInt(char.defense.saves.will.prof, 10) || 0;
+      const willProfBonus = willProf > 0 ? (willProf + level) : 0;
+      const willTot = wisMod + willProfBonus + (parseInt(char.defense.saves.will.item, 10) || 0) + (parseInt(char.defense.saves.will.other, 10) || 0);
+      document.getElementById("saveWillTotal").textContent = formatMod(willTot);
+
+      // Percepção (SAB)
+      document.getElementById("savePercAttr").value = wisMod;
+      const percProf = parseInt(char.defense.perception.prof, 10) || 0;
+      const percProfBonus = percProf > 0 ? (percProf + level) : 0;
+      const percTot = wisMod + percProfBonus + (parseInt(char.defense.perception.item, 10) || 0) + (parseInt(char.defense.perception.other, 10) || 0);
+      document.getElementById("savePercTotal").textContent = formatMod(percTot);
+
+      // Magias: CD e Ataque
+      const magicKey = char.magic.keyAttr || "int";
+      const magicMod = modMap[magicKey] || 0;
+      // Em PF2e: CD = 10 + Atributo + Proficiência (T=2+N). Assumimos treinado como padrão básico
+      const spellProf = 2 + level;
+      const spellDc = 10 + magicMod + spellProf;
+      const spellAtk = magicMod + spellProf;
+      document.getElementById("spellDcDisplay").value = spellDc;
+      document.getElementById("spellAtkDisplay").value = formatMod(spellAtk);
+
+      // Perícias na tabela
+      PF2E_SKILLS_DATA.forEach(sk => {
+        const skState = (char.skills && char.skills[sk.id]) ? char.skills[sk.id] : { prof: 0, item: 0, armor: 0, other: 0 };
+        const skAttrMod = modMap[sk.attr] || 0;
+        const skProfVal = parseInt(skState.prof, 10) || 0;
+        const skProfBonus = skProfVal > 0 ? (skProfVal + level) : 0;
+        const skItem = parseInt(skState.item, 10) || 0;
+        const skArmor = parseInt(skState.armor, 10) || 0;
+        const skOther = parseInt(skState.other, 10) || 0;
+
+        const total = skAttrMod + skProfBonus + skItem - Math.abs(skArmor) + skOther;
+        const totEl = document.getElementById(`skill_tot_${sk.id}`);
+        const attrModEl = document.getElementById(`skill_attrmod_${sk.id}`);
+        if (totEl) totEl.textContent = formatMod(total);
+        if (attrModEl) attrModEl.textContent = formatMod(skAttrMod);
+      });
+
+      // Total de moedas convertido em Ouro (PP=10 PO, GP=1 PO, SP=0.1 PO, CP=0.01 PO)
+      const coins = (char.equipment && char.equipment.coins) ? char.equipment.coins : { pp: 0, gp: 0, sp: 0, cp: 0 };
+      const pp = Number(coins.pp) || 0;
+      const gp = Number(coins.gp) || 0;
+      const sp = Number(coins.sp) || 0;
+      const cp = Number(coins.cp) || 0;
+      const totalGold = (pp * 10) + gp + (sp * 0.1) + (cp * 0.01);
+      const totalGoldEl = document.getElementById("totalGoldDisplay");
+      if (totalGoldEl) {
+        totalGoldEl.textContent = totalGold.toFixed(2) + " PO";
+      }
+    }
+
+    // Helper para ler caminhos 'identity.name' em objetos
+    function getNestedValue(obj, path) {
+      return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    }
+
+    function setNestedValue(obj, path, value) {
+      const parts = path.split('.');
+      let current = obj;
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!current[parts[i]]) current[parts[i]] = {};
+        current = current[parts[i]];
+      }
+      current[parts[parts.length - 1]] = value;
+    }
+
+    // Redimensionamento de Imagem para Proteger o LocalStorage (máx 600px de largura, JPEG ~0.8)
+    function processArchetypeImage(file, callback) {
+      if (!file || !file.type.startsWith("image/")) {
+        alert("O arquivo selecionado não é uma imagem válida.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxWidth = 600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          try {
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+            callback(dataUrl);
+          } catch (err) {
+            alert("Erro ao processar a imagem do arquétipo.");
+          }
+        };
+        img.onerror = () => {
+          alert("Não foi possível carregar a imagem selecionada.");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Renderizador de Arquétipos
+    function renderArchetypesList() {
+      const container = document.getElementById("archetypesListContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const char = getActiveChar();
+      if (!Array.isArray(char.archetypes)) char.archetypes = [];
+
+      if (char.archetypes.length === 0) {
+        container.innerHTML = `
+          <div class="archetype-card" style="text-align: center; padding: 36px 20px;">
+            <span class="card-corner-bl">❖</span>
+            <span class="card-corner-br">❖</span>
+            <p style="color: var(--text-subtle); font-style: italic; margin-bottom: 12px;">Nenhum arquétipo consagrado neste tomo de personagem.</p>
+            <p style="font-size: 0.85rem; color: var(--gold-dim);">Use o botão abaixo para anexar novos arquétipos e seus talentos de classe.</p>
+          </div>
+        `;
+        return;
+      }
+
+      char.archetypes.forEach((arch, archIndex) => {
+        if (!Array.isArray(arch.talentos)) arch.talentos = [];
+
+        // Garante ordenação crescente por nível
+        arch.talentos.sort((a, b) => (parseInt(a.nivel, 10) || 0) - (parseInt(b.nivel, 10) || 0));
+
+        const card = document.createElement("div");
+        card.className = "archetype-card";
+
+        // Cantos ornamentados
+        const cornerBl = document.createElement("span");
+        cornerBl.className = "card-corner-bl";
+        cornerBl.textContent = "❖";
+        const cornerBr = document.createElement("span");
+        cornerBr.className = "card-corner-br";
+        cornerBr.textContent = "❖";
+        card.appendChild(cornerBl);
+        card.appendChild(cornerBr);
+
+        // Botão de excluir arquétipo (hover)
+        const btnDeleteArch = document.createElement("button");
+        btnDeleteArch.type = "button";
+        btnDeleteArch.className = "btn-remove-archetype";
+        btnDeleteArch.title = "Excluir arquétipo";
+        btnDeleteArch.textContent = "✕";
+        btnDeleteArch.addEventListener("click", () => {
+          const archTitle = arch.titulo ? `"${arch.titulo}"` : "este arquétipo";
+          if (confirm(`Deseja realmente apagar o arquétipo ${archTitle} e todos os seus talentos?`)) {
+            char.archetypes.splice(archIndex, 1);
+            saveToStorage(true);
+            renderArchetypesList();
+          }
+        });
+        card.appendChild(btnDeleteArch);
+
+        // Grid principal (2 colunas)
+        const grid = document.createElement("div");
+        grid.className = "archetype-grid";
+
+        // COLUNA ESQUERDA: Identidade do arquétipo
+        const colIdent = document.createElement("div");
+        colIdent.className = "archetype-col-identity";
+
+        // Moldura para upload de imagem com input oculto
+        const frame = document.createElement("div");
+        frame.className = "archetype-frame-wrap";
+        frame.title = "Clique para alterar a imagem do arquétipo";
+
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "image/*";
+        fileInput.style.display = "none";
+
+        fileInput.addEventListener("change", (e) => {
+          if (e.target.files && e.target.files[0]) {
+            processArchetypeImage(e.target.files[0], (dataUrl) => {
+              arch.imagem = dataUrl;
+              saveToStorage(true);
+              renderArchetypesList();
+            });
+          }
+        });
+
+        frame.addEventListener("click", () => {
+          fileInput.click();
+        });
+
+        if (arch.imagem) {
+          const img = document.createElement("img");
+          img.src = arch.imagem;
+          img.alt = arch.titulo || "Emblema do arquétipo";
+          img.className = "archetype-img";
+          frame.appendChild(img);
+        } else {
+          const placeholder = document.createElement("div");
+          placeholder.className = "archetype-placeholder";
+          placeholder.innerHTML = `
+            <span class="archetype-placeholder-symbol">❖</span>
+            <span class="archetype-placeholder-hint">Clique para adicionar imagem</span>
+          `;
+          frame.appendChild(placeholder);
+        }
+
+        colIdent.appendChild(frame);
+        colIdent.appendChild(fileInput);
+
+        // Campo de Título do Arquétipo
+        const titleInput = document.createElement("input");
+        titleInput.type = "text";
+        titleInput.className = "form-input archetype-title-input";
+        titleInput.placeholder = "Título do Arquétipo";
+        titleInput.value = arch.titulo || "";
+        titleInput.addEventListener("input", (e) => {
+          arch.titulo = e.target.value;
+          saveToStorage(true);
+        });
+        colIdent.appendChild(titleInput);
+
+        // Campo de Descrição do Arquétipo
+        const descTextarea = document.createElement("textarea");
+        descTextarea.className = "form-textarea";
+        descTextarea.style.minHeight = "120px";
+        descTextarea.placeholder = "Descrição, votos, linhagens ou juramentos deste arquétipo...";
+        descTextarea.value = arch.descricao || "";
+        descTextarea.addEventListener("input", (e) => {
+          arch.descricao = e.target.value;
+          saveToStorage(true);
+        });
+        colIdent.appendChild(descTextarea);
+
+        grid.appendChild(colIdent);
+
+        // COLUNA DIREITA: Lista de Talentos
+        const colFeats = document.createElement("div");
+        colFeats.className = "archetype-col-feats";
+
+        const featsHeader = document.createElement("div");
+        featsHeader.className = "feats-list-header";
+        featsHeader.innerHTML = `<h3>Talentos do Arquétipo</h3>`;
+        colFeats.appendChild(featsHeader);
+
+        const featsContainer = document.createElement("div");
+        featsContainer.style.display = "flex";
+        featsContainer.style.flexDirection = "column";
+        featsContainer.style.gap = "10px";
+
+        if (arch.talentos.length === 0) {
+          const emptyFeats = document.createElement("div");
+          emptyFeats.style.padding = "16px";
+          emptyFeats.style.color = "var(--text-subtle)";
+          emptyFeats.style.fontStyle = "italic";
+          emptyFeats.style.fontSize = "0.9rem";
+          emptyFeats.textContent = "Nenhum talento cadastrado neste arquétipo.";
+          featsContainer.appendChild(emptyFeats);
+        } else {
+          arch.talentos.forEach((feat, featIndex) => {
+            const featCard = document.createElement("div");
+            featCard.className = "archetype-feat-card";
+
+            // Topo do card de talento: Título, Nível e Botão Excluir
+            const topRow = document.createElement("div");
+            topRow.className = "feat-card-top";
+
+            const featTitleInput = document.createElement("input");
+            featTitleInput.type = "text";
+            featTitleInput.className = "form-input feat-title-input";
+            featTitleInput.placeholder = "Nome do Talento";
+            featTitleInput.value = feat.titulo || "";
+            featTitleInput.addEventListener("input", (e) => {
+              feat.titulo = e.target.value;
+              saveToStorage(true);
+            });
+
+            const levelWrap = document.createElement("div");
+            levelWrap.className = "feat-level-wrap";
+            levelWrap.innerHTML = `<span class="feat-level-label">Nível</span>`;
+
+            const featLevelInput = document.createElement("input");
+            featLevelInput.type = "number";
+            featLevelInput.min = "1";
+            featLevelInput.max = "20";
+            featLevelInput.className = "form-input feat-level-input";
+            featLevelInput.value = feat.nivel !== undefined ? feat.nivel : 1;
+            featLevelInput.addEventListener("change", (e) => {
+              feat.nivel = parseInt(e.target.value, 10) || 1;
+              saveToStorage(true);
+              renderArchetypesList();
+            });
+            levelWrap.appendChild(featLevelInput);
+
+            const btnDeleteFeat = document.createElement("button");
+            btnDeleteFeat.type = "button";
+            btnDeleteFeat.className = "btn-remove-feat";
+            btnDeleteFeat.title = "Excluir talento";
+            btnDeleteFeat.textContent = "✕";
+            btnDeleteFeat.addEventListener("click", () => {
+              arch.talentos.splice(featIndex, 1);
+              saveToStorage(true);
+              renderArchetypesList();
+            });
+
+            topRow.appendChild(featTitleInput);
+            topRow.appendChild(levelWrap);
+            topRow.appendChild(btnDeleteFeat);
+            featCard.appendChild(topRow);
+
+            // MODIFICAÇÃO 2: TAGS EDITÁVEIS COM TRAVAMENTO (ESTADO PADRÃO DE SELOS / MODO DE EDIÇÃO COM "OK")
+            const tagsRow = document.createElement("div");
+            tagsRow.className = "feat-tags-row";
+
+            // Painel de exibição travada (selos)
+            const tagsDisplay = document.createElement("div");
+            tagsDisplay.className = "feat-tags-display";
+            tagsDisplay.title = "Clique para editar as tags";
+
+            // Painel de edição inline
+            const tagsEditRow = document.createElement("div");
+            tagsEditRow.className = "feat-tags-edit-row";
+            tagsEditRow.style.display = "none";
+
+            const tagsInput = document.createElement("input");
+            tagsInput.type = "text";
+            tagsInput.className = "form-input feat-tags-edit-input";
+            tagsInput.placeholder = "Tags separadas por vírgula (ex: Arquétipo, Dedicação, Raro)";
+
+            const btnTagsOk = document.createElement("button");
+            btnTagsOk.type = "button";
+            btnTagsOk.className = "btn-grimoire btn-tags-ok";
+            btnTagsOk.textContent = "ok";
+
+            tagsEditRow.appendChild(tagsInput);
+            tagsEditRow.appendChild(btnTagsOk);
+
+            function getCleanTagsArray() {
+              if (Array.isArray(feat.tags)) {
+                return feat.tags.map(t => String(t).trim()).filter(Boolean);
+              }
+              if (typeof feat.tags === "string") {
+                return feat.tags.split(",").map(t => t.trim()).filter(Boolean);
+              }
+              return [];
+            }
+
+            function renderLockedTags() {
+              tagsDisplay.innerHTML = "";
+              const currentTags = getCleanTagsArray();
+
+              if (currentTags.length === 0) {
+                const hint = document.createElement("span");
+                hint.className = "feat-tags-empty-hint";
+                hint.innerHTML = `✎ <span>Adicionar tags...</span>`;
+                tagsDisplay.appendChild(hint);
+              } else {
+                currentTags.forEach(t => {
+                  const badge = document.createElement("span");
+                  badge.className = "archetype-tag-badge";
+                  badge.textContent = t;
+                  tagsDisplay.appendChild(badge);
+                });
+
+                const editMarker = document.createElement("span");
+                editMarker.className = "feat-tags-edit-btn";
+                editMarker.textContent = "✎";
+                editMarker.title = "Editar tags";
+                tagsDisplay.appendChild(editMarker);
+              }
+            }
+
+            function enterTagEditMode() {
+              const currentTags = getCleanTagsArray();
+              tagsInput.value = currentTags.join(", ");
+              tagsDisplay.style.display = "none";
+              tagsEditRow.style.display = "flex";
+              tagsInput.focus();
+              tagsInput.select();
+            }
+
+            function commitTagEdit() {
+              if (tagsEditRow.style.display === "none") return;
+              const rawVal = tagsInput.value || "";
+              const cleanList = rawVal
+                .split(",")
+                .map(t => t.trim())
+                .filter(Boolean);
+
+              feat.tags = cleanList;
+              saveToStorage(true);
+
+              tagsEditRow.style.display = "none";
+              tagsDisplay.style.display = "flex";
+              renderLockedTags();
+            }
+
+            tagsDisplay.addEventListener("click", enterTagEditMode);
+
+            btnTagsOk.addEventListener("click", (e) => {
+              e.stopPropagation();
+              commitTagEdit();
+            });
+
+            tagsInput.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                commitTagEdit();
+              } else if (e.key === "Escape") {
+                e.preventDefault();
+                tagsEditRow.style.display = "none";
+                tagsDisplay.style.display = "flex";
+                renderLockedTags();
+              }
+            });
+
+            renderLockedTags();
+
+            tagsRow.appendChild(tagsDisplay);
+            tagsRow.appendChild(tagsEditRow);
+            featCard.appendChild(tagsRow);
+
+            // MODIFICAÇÃO 1: DESCRIÇÃO DO TALENTO COM NO MÍNIMO 5 LINHAS E ALTURA MÍNIMA ~120PX
+            const featDesc = document.createElement("textarea");
+            featDesc.className = "form-textarea feat-desc-input";
+            featDesc.rows = 5;
+            featDesc.placeholder = "Efeito, pré-requisitos, gatilhos e mecânicas do talento...";
+            featDesc.value = feat.descricao || "";
+            featDesc.addEventListener("input", (e) => {
+              feat.descricao = e.target.value;
+              saveToStorage(true);
+            });
+            featCard.appendChild(featDesc);
+
+            featsContainer.appendChild(featCard);
+          });
+        }
+
+        colFeats.appendChild(featsContainer);
+
+        // Botão + Adicionar talento
+        const addFeatWrap = document.createElement("div");
+        addFeatWrap.style.marginTop = "8px";
+        const btnAddFeat = document.createElement("button");
+        btnAddFeat.type = "button";
+        btnAddFeat.className = "btn-grimoire";
+        btnAddFeat.textContent = "+ Adicionar talento";
+        btnAddFeat.addEventListener("click", () => {
+          arch.talentos.push({
+            id: "feat_" + Date.now(),
+            titulo: "Novo Talento",
+            tags: ["Arquétipo"],
+            nivel: 2,
+            descricao: ""
+          });
+          saveToStorage(true);
+          renderArchetypesList();
+        });
+        addFeatWrap.appendChild(btnAddFeat);
+        colFeats.appendChild(addFeatWrap);
+
+        grid.appendChild(colFeats);
+        card.appendChild(grid);
+        container.appendChild(card);
+      });
+    }
+
+    // Criação de cartão de talento genérico reutilizável
+    function createFeatCardElement(feat, featIndex, featList, defaultPlaceholderHint, onRender) {
+      const featCard = document.createElement("div");
+      featCard.className = "archetype-feat-card";
+
+      // Topo do card: Título, Nível e Botão Excluir
+      const topRow = document.createElement("div");
+      topRow.className = "feat-card-top";
+
+      const featTitleInput = document.createElement("input");
+      featTitleInput.type = "text";
+      featTitleInput.className = "form-input feat-title-input";
+      featTitleInput.placeholder = "Nome do Talento";
+      featTitleInput.value = feat.titulo || "";
+      featTitleInput.addEventListener("input", (e) => {
+        feat.titulo = e.target.value;
+        saveToStorage(true);
+      });
+
+      const levelWrap = document.createElement("div");
+      levelWrap.className = "feat-level-wrap";
+      levelWrap.innerHTML = `<span class="feat-level-label">Nível</span>`;
+
+      const featLevelInput = document.createElement("input");
+      featLevelInput.type = "number";
+      featLevelInput.min = "1";
+      featLevelInput.max = "20";
+      featLevelInput.className = "form-input feat-level-input";
+      featLevelInput.value = feat.nivel !== undefined ? feat.nivel : 1;
+      featLevelInput.addEventListener("change", (e) => {
+        feat.nivel = parseInt(e.target.value, 10) || 1;
+        saveToStorage(true);
+        onRender();
+      });
+      levelWrap.appendChild(featLevelInput);
+
+      const btnDeleteFeat = document.createElement("button");
+      btnDeleteFeat.type = "button";
+      btnDeleteFeat.className = "btn-remove-feat";
+      btnDeleteFeat.title = "Excluir talento";
+      btnDeleteFeat.textContent = "✕";
+      btnDeleteFeat.addEventListener("click", () => {
+        const featName = feat.titulo ? `"${feat.titulo}"` : "este talento";
+        if (confirm(`Deseja remover o talento ${featName}?`)) {
+          featList.splice(featIndex, 1);
+          saveToStorage(true);
+          onRender();
+        }
+      });
+
+      topRow.appendChild(featTitleInput);
+      topRow.appendChild(levelWrap);
+      topRow.appendChild(btnDeleteFeat);
+      featCard.appendChild(topRow);
+
+      // TAGS
+      const tagsRow = document.createElement("div");
+      tagsRow.className = "feat-tags-row";
+
+      const tagsDisplay = document.createElement("div");
+      tagsDisplay.className = "feat-tags-display";
+      tagsDisplay.title = "Clique para editar as tags";
+
+      const tagsEditRow = document.createElement("div");
+      tagsEditRow.className = "feat-tags-edit-row";
+      tagsEditRow.style.display = "none";
+
+      const tagsInput = document.createElement("input");
+      tagsInput.type = "text";
+      tagsInput.className = "form-input feat-tags-edit-input";
+      tagsInput.placeholder = `Tags separadas por vírgula (ex: ${defaultPlaceholderHint})`;
+
+      const btnTagsOk = document.createElement("button");
+      btnTagsOk.type = "button";
+      btnTagsOk.className = "btn-grimoire btn-tags-ok";
+      btnTagsOk.textContent = "ok";
+
+      tagsEditRow.appendChild(tagsInput);
+      tagsEditRow.appendChild(btnTagsOk);
+
+      function getCleanTagsArray() {
+        if (Array.isArray(feat.tags)) {
+          return feat.tags.map(t => String(t).trim()).filter(Boolean);
+        }
+        if (typeof feat.tags === "string") {
+          return feat.tags.split(",").map(t => t.trim()).filter(Boolean);
+        }
+        return [];
+      }
+
+      function renderLockedTags() {
+        tagsDisplay.innerHTML = "";
+        const currentTags = getCleanTagsArray();
+
+        if (currentTags.length === 0) {
+          const hint = document.createElement("span");
+          hint.className = "feat-tags-empty-hint";
+          hint.innerHTML = `✎ <span>Adicionar tags...</span>`;
+          tagsDisplay.appendChild(hint);
+        } else {
+          currentTags.forEach(t => {
+            const badge = document.createElement("span");
+            badge.className = "archetype-tag-badge";
+            badge.textContent = t;
+            tagsDisplay.appendChild(badge);
+          });
+
+          const editMarker = document.createElement("span");
+          editMarker.className = "feat-tags-edit-btn";
+          editMarker.textContent = "✎";
+          editMarker.title = "Editar tags";
+          tagsDisplay.appendChild(editMarker);
+        }
+      }
+
+      function enterTagEditMode() {
+        const currentTags = getCleanTagsArray();
+        tagsInput.value = currentTags.join(", ");
+        tagsDisplay.style.display = "none";
+        tagsEditRow.style.display = "flex";
+        tagsInput.focus();
+        tagsInput.select();
+      }
+
+      function commitTagEdit() {
+        if (tagsEditRow.style.display === "none") return;
+        const rawVal = tagsInput.value || "";
+        const cleanList = rawVal
+          .split(",")
+          .map(t => t.trim())
+          .filter(Boolean);
+
+        feat.tags = cleanList;
+        saveToStorage(true);
+
+        tagsEditRow.style.display = "none";
+        tagsDisplay.style.display = "flex";
+        renderLockedTags();
+      }
+
+      tagsDisplay.addEventListener("click", enterTagEditMode);
+
+      btnTagsOk.addEventListener("click", (e) => {
+        e.stopPropagation();
+        commitTagEdit();
+      });
+
+      tagsInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          commitTagEdit();
+        } else if (e.key === "Escape") {
+          tagsEditRow.style.display = "none";
+          tagsDisplay.style.display = "flex";
+          renderLockedTags();
+        }
+      });
+
+      renderLockedTags();
+
+      tagsRow.appendChild(tagsDisplay);
+      tagsRow.appendChild(tagsEditRow);
+      featCard.appendChild(tagsRow);
+
+      // DESCRIÇÃO: no mínimo 5 linhas visíveis e altura mínima ~120px
+      const featDesc = document.createElement("textarea");
+      featDesc.className = "form-textarea feat-desc-input";
+      featDesc.rows = 5;
+      featDesc.placeholder = "Efeito, pré-requisitos, gatilhos e mecânicas do talento...";
+      featDesc.value = feat.descricao || "";
+      featDesc.addEventListener("input", (e) => {
+        feat.descricao = e.target.value;
+        saveToStorage(true);
+      });
+      featCard.appendChild(featDesc);
+
+      return featCard;
+    }
+
+    // Renderizador das quatro seções da aba Talentos
+    function renderTalentosList() {
+      const char = getActiveChar();
+      if (!char) return;
+      ensureCharacterStructures(char);
+
+      const categories = [
+        { key: "classe", containerId: "featsClassContainer", hint: "Classe", defaultTag: "Classe" },
+        { key: "geral", containerId: "featsGeneralContainer", hint: "Geral", defaultTag: "Geral" },
+        { key: "pericia", containerId: "featsSkillContainer", hint: "Perícia", defaultTag: "Perícia" },
+        { key: "antecedente", containerId: "featsBackgroundContainer", hint: "Antecedente", defaultTag: "Antecedente" }
+      ];
+
+      categories.forEach(cat => {
+        const container = document.getElementById(cat.containerId);
+        if (!container) return;
+        container.innerHTML = "";
+
+        const featList = char.talentos[cat.key];
+        // Ordenação crescente por nível
+        featList.sort((a, b) => (parseInt(a.nivel, 10) || 0) - (parseInt(b.nivel, 10) || 0));
+
+        if (featList.length === 0) {
+          const empty = document.createElement("div");
+          empty.style.padding = "16px";
+          empty.style.color = "var(--text-subtle)";
+          empty.style.fontStyle = "italic";
+          empty.style.fontSize = "0.9rem";
+          empty.textContent = "Nenhum talento cadastrado nesta seção.";
+          container.appendChild(empty);
+        } else {
+          featList.forEach((feat, index) => {
+            const cardEl = createFeatCardElement(feat, index, featList, cat.hint, renderTalentosList);
+            container.appendChild(cardEl);
+          });
+        }
+      });
+    }
+
+    // Processamento e compressão de imagens de lembranças para proteger localStorage
+    function processMemoryImage(file, callback) {
+      if (!file || !file.type.startsWith("image/")) {
+        alert("O arquivo selecionado não é uma imagem válida.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const maxWidth = 600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+
+          try {
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+            callback(dataUrl);
+          } catch (err) {
+            alert("Erro ao processar imagem para o mural de lembranças.");
+          }
+        };
+        img.onerror = () => {
+          alert("Não foi possível carregar a imagem da lembrança.");
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Renderizador do Mural de Lembranças
+    function renderMemoriesList() {
+      const container = document.getElementById("memoriesContainer");
+      if (!container) return;
+      container.innerHTML = "";
+      const char = getActiveChar();
+      if (!char) return;
+      ensureCharacterStructures(char);
+
+      if (char.lembrancas.length === 0) {
+        container.innerHTML = `
+          <div style="column-span: all; text-align: center; padding: 40px 16px; color: var(--text-subtle); font-style: italic;">
+            O mural está vazio. Adicione fragmentos e retratos das crônicas de suas jornadas com o botão abaixo.
+          </div>
+        `;
+        return;
+      }
+
+      char.lembrancas.forEach((mem, index) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "memory-card-wrapper";
+
+        const card = document.createElement("div");
+        card.className = "memory-card";
+
+        // Botão de exclusão (hover)
+        const btnDelete = document.createElement("button");
+        btnDelete.type = "button";
+        btnDelete.className = "btn-remove-memory";
+        btnDelete.title = "Excluir lembrança";
+        btnDelete.textContent = "✕";
+        btnDelete.addEventListener("click", (e) => {
+          e.stopPropagation();
+          if (confirm("Deseja realmente remover esta lembrança do mural?")) {
+            char.lembrancas.splice(index, 1);
+            saveToStorage(true);
+            renderMemoriesList();
+          }
+        });
+        wrapper.appendChild(btnDelete);
+
+        // FRENTE (Imagem mantendo proporção)
+        const faceFront = document.createElement("div");
+        faceFront.className = "memory-face-front";
+        faceFront.title = "Duplo clique para virar e registrar anotações";
+
+        const imgFrame = document.createElement("div");
+        imgFrame.className = "memory-image-frame";
+
+        const img = document.createElement("img");
+        img.src = mem.imagem || "https://img.usecurling.com/p/600/400?q=dark%20ruins&color=black";
+        img.alt = "Lembrança de aventura";
+        imgFrame.appendChild(img);
+
+        const frontHint = document.createElement("div");
+        frontHint.className = "memory-front-hint";
+        frontHint.textContent = "Duplo clique para virar";
+
+        faceFront.appendChild(imgFrame);
+        faceFront.appendChild(frontHint);
+
+        // VERSO (Pergaminho queimado com textarea)
+        const faceBack = document.createElement("div");
+        faceBack.className = "memory-face-back";
+
+        const backHeader = document.createElement("div");
+        backHeader.className = "memory-back-header";
+
+        const backTitle = document.createElement("span");
+        backTitle.className = "memory-back-title";
+        backTitle.textContent = "Crônica da Lembrança";
+
+        const flipBackBtn = document.createElement("button");
+        flipBackBtn.type = "button";
+        flipBackBtn.className = "memory-back-flip-btn";
+        flipBackBtn.textContent = "Voltar";
+        flipBackBtn.title = "Voltar para o retrato";
+        flipBackBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          card.classList.remove("flipped");
+        });
+
+        backHeader.appendChild(backTitle);
+        backHeader.appendChild(flipBackBtn);
+
+        const textarea = document.createElement("textarea");
+        textarea.className = "memory-textarea";
+        textarea.rows = 6;
+        textarea.placeholder = "Escreva aqui os fatos, nomes e segredos guardados nesta lembrança...";
+        textarea.value = mem.texto || "";
+        textarea.addEventListener("input", (e) => {
+          mem.texto = e.target.value;
+          saveToStorage(true);
+        });
+        // Evita que cliques ou duplo cliques para selecionar palavras no textarea virem o cartão
+        textarea.addEventListener("dblclick", (e) => {
+          e.stopPropagation();
+        });
+
+        const backFooter = document.createElement("div");
+        backFooter.className = "memory-back-footer";
+        backFooter.innerHTML = `<span>❖</span><span>Duplo clique para voltar</span><span>❖</span>`;
+
+        faceBack.appendChild(backHeader);
+        faceBack.appendChild(textarea);
+        faceBack.appendChild(backFooter);
+
+        card.appendChild(faceFront);
+        card.appendChild(faceBack);
+
+        // Virar no DUPLO CLIQUE na frente
+        faceFront.addEventListener("dblclick", () => {
+          card.classList.add("flipped");
+        });
+
+        // Virar no DUPLO CLIQUE no verso (exceto no textarea)
+        faceBack.addEventListener("dblclick", (e) => {
+          if (e.target !== textarea) {
+            card.classList.remove("flipped");
+          }
+        });
+
+        backHeader.addEventListener("dblclick", (e) => {
+          e.stopPropagation();
+          card.classList.remove("flipped");
+        });
+
+        backFooter.addEventListener("dblclick", (e) => {
+          e.stopPropagation();
+          card.classList.remove("flipped");
+        });
+
+        wrapper.appendChild(card);
+        container.appendChild(wrapper);
+      });
+    }
+
+    // Sincronizar UI com os dados do personagem ativo
+    function bindDataToForm() {
+      const char = getActiveChar();
+      if (!char) return;
+      ensureCharacterStructures(char);
+
+      document.querySelectorAll("[data-bind]").forEach(elem => {
+        const path = elem.getAttribute("data-bind");
+        const val = getNestedValue(char, path);
+
+        if (elem.type === "checkbox") {
+          elem.checked = Boolean(val);
+        } else {
+          elem.value = val !== undefined ? val : "";
+        }
+      });
+
+      renderConditions();
+      renderSkillsTable();
+      renderSpellSlots();
+      renderTalentosList();
+      renderAttacksList();
+      renderSpellsList();
+      renderArchetypesList();
+      renderEquipmentList();
+      renderMemoriesList();
+      updateCalculations();
+      populateCharacterSelector();
+    }
+
+    function populateCharacterSelector() {
+      const selector = document.getElementById("characterSelector");
+      const nameDisplay = document.getElementById("charNameDisplay");
+      if (!selector) return;
+      selector.innerHTML = "";
+
+      const activeChar = getActiveChar();
+      if (nameDisplay && activeChar) {
+        nameDisplay.textContent = activeChar.identity.name || "Herói Sem Nome";
+      }
+
+      // Sincroniza cabeçalho para impressão
+      const printNameEl = document.getElementById("printCharName");
+      const printSubEl = document.getElementById("printCharSub");
+      if (printNameEl && activeChar) {
+        printNameEl.textContent = activeChar.identity.name || "Herói Sem Nome";
+      }
+      if (printSubEl && activeChar) {
+        const cls = activeChar.identity.class || "Guerreiro";
+        const lvl = activeChar.identity.level || "1";
+        const anc = activeChar.identity.ancestry || "Humano";
+        printSubEl.textContent = `${cls} • Nível ${lvl} • ${anc}`;
+      }
+
+      Object.values(appState.characters).forEach(c => {
+        const opt = document.createElement("option");
+        opt.value = c.id;
+        opt.textContent = c.identity.name || "Herói Sem Nome";
+        if (c.id === appState.activeCharId) {
+          opt.selected = true;
+        }
+        selector.appendChild(opt);
+      });
+    }
+
+    function setupInlineRename() {
+      const nameDisplay = document.getElementById("charNameDisplay");
+      const renameInput = document.getElementById("charRenameInput");
+      if (!nameDisplay || !renameInput) return;
+
+      function startRename() {
+        const char = getActiveChar();
+        if (!char) return;
+        renameInput.value = char.identity.name || "";
+        nameDisplay.style.display = "none";
+        renameInput.style.display = "inline-block";
+        renameInput.focus();
+        renameInput.select();
+      }
+
+      function finishRename() {
+        if (renameInput.style.display === "none") return;
+        const char = getActiveChar();
+        if (char) {
+          const newName = renameInput.value.trim();
+          if (newName) {
+            char.identity.name = newName;
+            const charNameInput = document.getElementById("charName");
+            if (charNameInput) charNameInput.value = newName;
+            saveToStorage(true);
+            populateCharacterSelector();
+          }
+        }
+        renameInput.style.display = "none";
+        nameDisplay.style.display = "inline-block";
+      }
+
+      nameDisplay.addEventListener("dblclick", startRename);
+
+      renameInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          finishRename();
+        } else if (e.key === "Escape") {
+          renameInput.style.display = "none";
+          nameDisplay.style.display = "inline-block";
+        }
+      });
+
+      renameInput.addEventListener("blur", finishRename);
+    }
+
+    function setupActionsMenu() {
+      const btnMenu = document.getElementById("btnActionsMenu");
+      const dropdown = document.getElementById("actionsDropdown");
+      if (!btnMenu || !dropdown) return;
+
+      function closeMenu() {
+        dropdown.classList.remove("show");
+        btnMenu.setAttribute("aria-expanded", "false");
+      }
+
+      btnMenu.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.contains("show");
+        if (isOpen) {
+          closeMenu();
+        } else {
+          dropdown.classList.add("show");
+          btnMenu.setAttribute("aria-expanded", "true");
+        }
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest(".actions-menu-wrapper")) {
+          closeMenu();
+        }
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeMenu();
+        }
+      });
+
+      document.getElementById("actExportJson").addEventListener("click", () => {
+        closeMenu();
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState, null, 2));
+        const downloadAnchor = document.createElement("a");
+        const char = getActiveChar();
+        const cleanName = (char ? char.identity.name : "personagens").toLowerCase().replace(/[^a-z0-9]/g, "_");
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `pf2e_tomo_${cleanName}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+      });
+
+      document.getElementById("actImportJson").addEventListener("click", () => {
+        closeMenu();
+        const fileInput = document.getElementById("jsonFileInput");
+        if (fileInput) fileInput.click();
+      });
+
+      document.getElementById("actDownloadPdf").addEventListener("click", () => {
+        closeMenu();
+        window.print();
+      });
+
+      document.getElementById("actNewChar").addEventListener("click", () => {
+        closeMenu();
+        const newId = "char_" + Date.now();
+        const newChar = createDefaultCharacter(newId, "Novo Aventureiro");
+        appState.characters[newId] = newChar;
+        appState.activeCharId = newId;
+        saveToStorage(true);
+        bindDataToForm();
+      });
+
+      // MODIFICAÇÃO 3: BOTÃO "ZERAR FICHA" NO MENU "AÇÕES"
+      const actClearChar = document.getElementById("actClearChar");
+      if (actClearChar) {
+        actClearChar.addEventListener("click", () => {
+          closeMenu();
+          const char = getActiveChar();
+          if (!char) return;
+
+          const charName = (char.identity && char.identity.name) ? char.identity.name : "este personagem";
+          const confirmClear = confirm(`Isso apagará todos os dados de "${charName}" e limpará todos os campos. Deseja continuar?`);
+          if (!confirmClear) return;
+
+          // Mantém o ID e o nome do personagem atual, limpando todos os demais campos
+          const preservedId = appState.activeCharId;
+          const preservedName = (char.identity && char.identity.name) ? char.identity.name : "Herói Sem Nome";
+
+          appState.characters[preservedId] = {
+            id: preservedId,
+            identity: {
+              name: preservedName,
+              ancestry: "",
+              background: "",
+              class: "",
+              level: 1,
+              size: "Médio",
+              alignment: "",
+              deity: "",
+              backstory: ""
+            },
+            attributes: {
+              str: 10,
+              dex: 10,
+              con: 10,
+              int: 10,
+              wis: 10,
+              cha: 10
+            },
+            defense: {
+              armorBonus: 0,
+              armorProf: 0,
+              armorDexCap: 0,
+              armorOther: 0,
+              shieldBonus: 0,
+              hpCurrent: 0,
+              hpMax: 0,
+              hpTemp: 0,
+              wounded: 0,
+              speed: "",
+              resistances: "",
+              saves: {
+                fort: { prof: 0, item: 0, other: 0 },
+                ref: { prof: 0, item: 0, other: 0 },
+                will: { prof: 0, item: 0, other: 0 }
+              },
+              perception: { prof: 0, item: 0, other: 0 },
+              activeConditions: {}
+            },
+            skills: {},
+            talentos: {
+              classe: [],
+              geral: [],
+              pericia: [],
+              antecedente: []
+            },
+            attacks: [],
+            magic: {
+              keyAttr: "int",
+              tradition: "Arcana",
+              slots: {
+                1: { current: 0, max: 0 },
+                2: { current: 0, max: 0 },
+                3: { current: 0, max: 0 },
+                4: { current: 0, max: 0 },
+                5: { current: 0, max: 0 },
+                6: { current: 0, max: 0 },
+                7: { current: 0, max: 0 },
+                8: { current: 0, max: 0 },
+                9: { current: 0, max: 0 }
+              },
+              spells: []
+            },
+            archetypes: [],
+            equipment: {
+              bulkTotal: "",
+              coins: { pp: 0, gp: 0, sp: 0, cp: 0 },
+              items: []
+            },
+            notes: {
+              allies: "",
+              enemies: "",
+              quests: "",
+              general: ""
+            },
+            lembrancas: []
+          };
+
+          saveToStorage(true);
+          bindDataToForm();
+        });
+      }
+
+      document.getElementById("actDeleteChar").addEventListener("click", () => {
+        closeMenu();
+        const charCount = Object.keys(appState.characters).length;
+        if (charCount <= 1) {
+          alert("Não é possível apagar o único personagem existente.");
+          return;
+        }
+
+        const char = getActiveChar();
+        const confirmDelete = confirm(`Tem certeza que deseja apagar o personagem "${char.identity.name}"? Esta ação não pode ser desfeita.`);
+        if (confirmDelete) {
+          delete appState.characters[char.id];
+          appState.activeCharId = Object.keys(appState.characters)[0];
+          saveToStorage(true);
+          bindDataToForm();
+        }
+      });
+
+      const fileInput = document.getElementById("jsonFileInput");
+      if (fileInput) {
+        fileInput.addEventListener("change", (e) => {
+          if (!e.target.files || e.target.files.length === 0) return;
+          const file = e.target.files[0];
+          const confirmImport = confirm("Deseja importar e restaurar os personagens a partir do arquivo JSON selecionado?");
+          if (!confirmImport) {
+            fileInput.value = "";
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            try {
+              const parsed = JSON.parse(evt.target.result);
+              if (parsed.characters && typeof parsed.characters === "object") {
+                appState.characters = parsed.characters;
+                appState.activeCharId = parsed.activeCharId || Object.keys(parsed.characters)[0];
+              } else if (parsed.identity && parsed.attributes) {
+                const importedId = parsed.id || "char_" + Date.now();
+                appState.characters[importedId] = parsed;
+                appState.activeCharId = importedId;
+              } else {
+                throw new Error("Formato de JSON incompatível com a ficha de Pathfinder 2e.");
+              }
+
+              saveToStorage(true);
+              bindDataToForm();
+              fileInput.value = "";
+              alert("Personagens restaurados com sucesso.");
+            } catch (err) {
+              alert("Erro ao ler o arquivo JSON: " + err.message);
+              fileInput.value = "";
+            }
+          };
+          reader.readAsText(file);
+        });
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // INICIALIZAÇÃO DE EVENTOS
+    document.addEventListener("DOMContentLoaded", () => {
+      initStorage();
+
+      // Navegação por Abas
+      const tabBtns = document.querySelectorAll(".tab-btn");
+      tabBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+          tabBtns.forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".tab-content").forEach(tc => tc.classList.remove("active"));
+
+          btn.classList.add("active");
+          const targetId = btn.getAttribute("data-tab");
+          const targetSection = document.getElementById(targetId);
+          if (targetSection) targetSection.classList.add("active");
+        });
+      });
+
+      // Escuta global de campos com data-bind
+      document.body.addEventListener("input", (e) => {
+        const target = e.target;
+        if (target.matches("[data-bind]")) {
+          const path = target.getAttribute("data-bind");
+          const char = getActiveChar();
+          let value = target.value;
+
+          if (target.type === "number") {
+            value = target.value === "" ? 0 : Number(target.value);
+          } else if (target.type === "checkbox") {
+            value = target.checked;
+          }
+
+          setNestedValue(char, path, value);
+
+          if (path === "identity.name") {
+            populateCharacterSelector();
+          }
+
+          updateCalculations();
+          saveToStorage(true);
+        }
+      });
+
+      // Seletor de Personagem
+      const selector = document.getElementById("characterSelector");
+      selector.addEventListener("change", (e) => {
+        const chosenId = e.target.value;
+        if (appState.characters[chosenId]) {
+          appState.activeCharId = chosenId;
+          saveToStorage(false);
+          bindDataToForm();
+        }
+      });
+
+      // Configurar renomear inline e menu de ações
+      setupInlineRename();
+      setupActionsMenu();
+
+      // Botões dinâmicos de adição da aba Talentos
+      document.getElementById("btnAddFeatClass").addEventListener("click", () => {
+        const char = getActiveChar();
+        ensureCharacterStructures(char);
+        char.talentos.classe.push({
+          id: "feat_cls_" + Date.now(),
+          titulo: "Novo Talento de Classe",
+          tags: ["Classe"],
+          nivel: 1,
+          descricao: ""
+        });
+        saveToStorage(true);
+        renderTalentosList();
+      });
+
+      document.getElementById("btnAddFeatGeneral").addEventListener("click", () => {
+        const char = getActiveChar();
+        ensureCharacterStructures(char);
+        char.talentos.geral.push({
+          id: "feat_ger_" + Date.now(),
+          titulo: "Novo Talento Geral",
+          tags: ["Geral"],
+          nivel: 1,
+          descricao: ""
+        });
+        saveToStorage(true);
+        renderTalentosList();
+      });
+
+      document.getElementById("btnAddFeatSkill").addEventListener("click", () => {
+        const char = getActiveChar();
+        ensureCharacterStructures(char);
+        char.talentos.pericia.push({
+          id: "feat_per_" + Date.now(),
+          titulo: "Novo Talento de Perícia",
+          tags: ["Perícia"],
+          nivel: 1,
+          descricao: ""
+        });
+        saveToStorage(true);
+        renderTalentosList();
+      });
+
+      document.getElementById("btnAddFeatBackground").addEventListener("click", () => {
+        const char = getActiveChar();
+        ensureCharacterStructures(char);
+        char.talentos.antecedente.push({
+          id: "feat_ant_" + Date.now(),
+          titulo: "Novo Talento de Antecedente",
+          tags: ["Antecedente"],
+          nivel: 1,
+          descricao: ""
+        });
+        saveToStorage(true);
+        renderTalentosList();
+      });
+
+      // Botões dinâmicos de adição
+      document.getElementById("btnAddAttack").addEventListener("click", () => {
+        const char = getActiveChar();
+        if (!char.attacks) char.attacks = [];
+        char.attacks.push({
+          name: "Novo Ataque",
+          bonus: "+0",
+          damage: "1d6",
+          traits: "",
+          notes: ""
+        });
+        renderAttacksList();
+        saveToStorage(true);
+      });
+
+      document.getElementById("btnAddSpell").addEventListener("click", () => {
+        const char = getActiveChar();
+        if (!char.magic.spells) char.magic.spells = [];
+        char.magic.spells.push({
+          name: "Nova Magia",
+          level: "1º Círculo",
+          time: "2 Ações",
+          notes: ""
+        });
+        renderSpellsList();
+        saveToStorage(true);
+      });
+
+      document.getElementById("btnAddItem").addEventListener("click", () => {
+        const char = getActiveChar();
+        if (!char.equipment.items) char.equipment.items = [];
+        char.equipment.items.push({
+          name: "Novo Item",
+          qty: 1,
+          bulk: "L",
+          notes: ""
+        });
+        renderEquipmentList();
+        saveToStorage(true);
+      });
+
+      document.getElementById("btnAddArchetype").addEventListener("click", () => {
+        const char = getActiveChar();
+        if (!Array.isArray(char.archetypes)) char.archetypes = [];
+        char.archetypes.push({
+          id: "arch_" + Date.now(),
+          titulo: "Novo Arquétipo",
+          descricao: "",
+          imagem: null,
+          talentos: []
+        });
+        renderArchetypesList();
+        saveToStorage(true);
+      });
+
+      // Aba Lembranças: Adicionar imagens via seletor múltiplo oculto
+      const btnAddMemory = document.getElementById("btnAddMemory");
+      const memoryFileInput = document.getElementById("memoryFileInput");
+
+      if (btnAddMemory && memoryFileInput) {
+        btnAddMemory.addEventListener("click", () => {
+          memoryFileInput.click();
+        });
+
+        memoryFileInput.addEventListener("change", (e) => {
+          const files = Array.from(e.target.files || []);
+          if (files.length === 0) return;
+
+          const char = getActiveChar();
+          ensureCharacterStructures(char);
+
+          let processedCount = 0;
+          const imageFiles = files.filter(f => f.type.startsWith("image/"));
+
+          if (imageFiles.length === 0) {
+            alert("Nenhum arquivo de imagem válido foi selecionado.");
+            memoryFileInput.value = "";
+            return;
+          }
+
+          imageFiles.forEach(file => {
+            processMemoryImage(file, (dataUrl) => {
+              char.lembrancas.push({
+                id: "mem_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+                imagem: dataUrl,
+                texto: ""
+              });
+
+              processedCount++;
+              if (processedCount === imageFiles.length) {
+                saveToStorage(true);
+                renderMemoriesList();
+                memoryFileInput.value = "";
+              }
+            });
+          });
+        });
+      }
+
+      // Preenchimento Inicial
+      bindDataToForm();
+    });
+  </script>
+<script>
+/* Skip artifact shell — fixed helpers served beside every artifact. */
+(function () {
+  "use strict";
+
+  var fmt = {
+    num: function (v, opts) { return new Intl.NumberFormat("pt-BR", opts || {}).format(v); },
+    brl: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v); },
+    pct: function (v) { return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(v); }
+  };
+
+  // axisFmt keeps axis tick labels short (compact notation) so long values
+  // (e.g. full BRL amounts) never clip against the plot edge.
+  function axisFmt(v) {
+    return fmt.num(v, { notation: "compact", maximumFractionDigits: 1 });
+  }
+
+  // format accepts a function OR one of the fmt names ("num" | "brl" | "pct").
+  function coerceFormat(spec) {
+    if (typeof spec === "function") return spec;
+    if (typeof spec === "string" && fmt[spec]) return fmt[spec];
+    return function (v) { return fmt.num(v); };
+  }
+
+  function accent() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2563eb";
+  }
+  function mutedColor() {
+    return getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() || "#5b6472";
+  }
+  function svgEl(tag, attrs) {
+    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  }
+  function frame(el, w, h) {
+    var svg = svgEl("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
+    el.innerHTML = "";
+    el.appendChild(svg);
+    return svg;
+  }
+
+  // maxOf guards the axis scale: empty values would give -Infinity (truthy,
+  // so "|| 1" can't catch it) and a non-positive max would flip the chart.
+  function maxOf(values) {
+    var m = values.length ? Math.max.apply(null, values) : 0;
+    return m > 0 ? m : 1;
+  }
+
+  // bar(el, {labels:[], values:[], color?, format?}) — vertical bar chart.
+  function bar(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 12, plotH = H - padT - padB;
+    var step = plotW / n, bw = Math.min(step * 0.62, 64);
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 12, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    cfg.values.forEach(function (v, i) {
+      var bh = Math.max(0, (v / max) * plotH);
+      var x = padL + i * step + (step - bw) / 2;
+      var y = padT + plotH - bh;
+      var r = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(v);
+      r.appendChild(t);
+      svg.appendChild(r);
+      var tx = svgEl("text", { x: x + bw / 2, y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // line(el, {labels:[], values:[], color?, format?}) — single-series line.
+  function line(el, cfg) {
+    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
+    var svg = frame(el, W, H);
+    var max = maxOf(cfg.values);
+    var n = cfg.values.length;
+    var plotW = W - padL - 16, plotH = H - padT - padB;
+    var color = cfg.color || accent();
+    var f = coerceFormat(cfg.format);
+    for (var g = 0; g <= 4; g++) {
+      var gy = padT + plotH - (plotH * g) / 4;
+      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 16, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
+      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
+      lbl.textContent = axisFmt((max * g) / 4);
+      svg.appendChild(lbl);
+    }
+    var pts = cfg.values.map(function (v, i) {
+      var x = padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
+      var y = padT + plotH - (v / max) * plotH;
+      return [x, y];
+    });
+    var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
+    svg.appendChild(svgEl("path", { d: d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
+    pts.forEach(function (p, i) {
+      var c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.5, fill: color });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + f(cfg.values[i]);
+      c.appendChild(t);
+      svg.appendChild(c);
+      var tx = svgEl("text", { x: p[0], y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
+      tx.textContent = cfg.labels[i];
+      svg.appendChild(tx);
+    });
+  }
+
+  // donut(el, {labels:[], values:[], colors?}) — donut with center total.
+  function donut(el, cfg) {
+    var W = 320, H = 280, cx = W / 2, cy = H / 2, R = 92, r = 58;
+    var svg = frame(el, W, H);
+    var total = cfg.values.reduce(function (a, b) { return a + b; }, 0) || 1;
+    var palette = cfg.colors || [accent(), "#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4"];
+    var a0 = -Math.PI / 2;
+    cfg.values.forEach(function (v, i) {
+      var a1 = a0 + (v / total) * Math.PI * 2;
+      var large = a1 - a0 > Math.PI ? 1 : 0;
+      var p = ["M", cx + R * Math.cos(a0), cy + R * Math.sin(a0),
+        "A", R, R, 0, large, 1, cx + R * Math.cos(a1), cy + R * Math.sin(a1),
+        "L", cx + r * Math.cos(a1), cy + r * Math.sin(a1),
+        "A", r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), "Z"].join(" ");
+      var path = svgEl("path", { d: p, fill: palette[i % palette.length] });
+      var t = svgEl("title", {});
+      t.textContent = cfg.labels[i] + ": " + fmt.num(v) + " (" + fmt.pct(v / total) + ")";
+      path.appendChild(t);
+      svg.appendChild(path);
+      a0 = a1;
+    });
+    var center = svgEl("text", { x: cx, y: cy + 5, "text-anchor": "middle", "font-size": 20, "font-weight": 650, fill: "currentColor" });
+    center.textContent = fmt.num(total);
+    svg.appendChild(center);
+  }
+
+  window.skipShell = { fmt: fmt };
+  window.skipChart = { bar: bar, line: line, donut: donut };
+})();
+
+</script>
+</body>
+</html>
